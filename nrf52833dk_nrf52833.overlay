@@ -1,0 +1,96 @@
+// To get started, press Ctrl+Space to bring up the completion menu and view the available nodes.
+
+// You can also use the buttons in the sidebar to perform actions on nodes.
+// Actions currently available include:
+
+// * Enabling / disabling the node
+// * Adding the bus to a bus
+// * Removing the node
+// * Connecting ADC channels
+
+// For more help, browse the DeviceTree documentation at https://docs.zephyrproject.org/latest/guides/dts/index.html
+// You can also visit the nRF DeviceTree extension documentation at https://nrfconnect.github.io/vscode-nrf-connect/devicetree/nrfdevicetree.html
+
+
+/* disabling all unused peripherals */
+
+&uart0 {
+    status = "disabled";
+};
+
+&uart1 {
+    status = "disabled";
+};
+
+&i2c0 {
+    status = "disabled";
+};
+
+&pwm0 {
+    status = "disabled";
+};
+
+&spi1 {
+    status = "disabled";
+};
+
+&spi3 {
+    status = "disabled";
+};
+
+&ieee802154 {
+    status = "disabled";
+};
+
+
+/* configuring peripherals we will use  */
+
+&spi0 {
+	status = "okay";
+
+	cs-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>,		// SD card CS on P0.11
+			   <&gpio0 17 GPIO_ACTIVE_LOW>;		// MCP2515 CS on P0.17
+
+	can1: can1@1 {
+		compatible = "microchip,mcp2515";
+		status = "okay";
+		spi-max-frequency = <1000000>;
+		int-gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;	// interupt on P1.07	ttpms_rx_2_0 uses P0.15 but this is an LED on the DK
+		reg = <1>;			// use second CS pin (see cs-gpios above)
+		osc-freq = <10000000>;	// 10MHz for click board
+		bus-speed = <1000000>;	// 500kpbs for testing
+		sjw = <1>;
+		sample-point = <750>;	// 75% sample point
+
+		can-transceiver {		// idk why this is getting the red squiggly, it should not
+			max-bitrate = <1000000>;
+		};
+	};
+};
+
+&pinctrl {
+
+	spi0_default: spi0_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 9)>,		// SCLK on P1.09
+				    <NRF_PSEL(SPIM_MOSI, 1, 8)>,	// MOSI on P1.08
+				    <NRF_PSEL(SPIM_MISO, 0, 4)>;	// MISO on P0.04
+		};
+	};
+
+	spi0_sleep: spi0_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 9)>,
+				    <NRF_PSEL(SPIM_MOSI, 1, 8)>,
+				    <NRF_PSEL(SPIM_MISO, 0, 4)>;
+			low-power-enable;
+		};
+	};
+
+};
+
+/ {
+	chosen {
+		zephyr,canbus = &can1;
+	};
+};
