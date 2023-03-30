@@ -26,8 +26,68 @@ const struct device *can_dev = DEVICE_DT_GET(CANBUS_NODE);
 struct can_frame test_frame = {
 		.flags = 0,
 		.id = 0x100,
-		.dlc = 8,
+		.dlc = 8
 };
+
+#define TTPMS_CAN_BASE_ID 0x100
+
+// All temp values are signed 16 bit integer (0.01 scale, 0 offset)
+
+// Internal front left (16 pixels wide)
+struct can_frame IFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
+struct can_frame IFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 2, .dlc = 8};
+struct can_frame IFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 3, .dlc = 8};
+struct can_frame IFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 4, .dlc = 8};
+
+// Internal front right (16 pixels wide)
+struct can_frame IFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 5, .dlc = 8};
+struct can_frame IFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 6, .dlc = 8};
+struct can_frame IFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 7, .dlc = 8};
+struct can_frame IFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 8, .dlc = 8};
+
+// Internal rear left (16 pixels wide)
+struct can_frame IRL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 9, .dlc = 8};
+struct can_frame IRL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 10, .dlc = 8};
+struct can_frame IRL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 11, .dlc = 8};
+struct can_frame IRL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 12, .dlc = 8};
+
+// Internal rear right (16 pixels wide)
+struct can_frame IRR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 13, .dlc = 8};
+struct can_frame IRR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 14, .dlc = 8};
+struct can_frame IRR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 15, .dlc = 8};
+struct can_frame IRR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 16, .dlc = 8};
+
+// External front left (32 pixels wide)
+struct can_frame EFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 17, .dlc = 8};
+struct can_frame EFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 18, .dlc = 8};
+struct can_frame EFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 19, .dlc = 8};
+struct can_frame EFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 20, .dlc = 8};
+struct can_frame EFL_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 21, .dlc = 8};
+struct can_frame EFL_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 22, .dlc = 8};
+struct can_frame EFL_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 8};
+struct can_frame EFL_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
+
+// External front right (32 pixels wide)
+struct can_frame EFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
+struct can_frame EFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 26, .dlc = 8};
+struct can_frame EFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 27, .dlc = 8};
+struct can_frame EFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 28, .dlc = 8};
+struct can_frame EFR_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 29, .dlc = 8};
+struct can_frame EFR_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 30, .dlc = 8};
+struct can_frame EFR_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 31, .dlc = 8};
+struct can_frame EFR_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 32, .dlc = 8};
+
+// External rear left (16 pixels wide)
+struct can_frame ERL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 33, .dlc = 8};
+struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 34, .dlc = 8};
+struct can_frame ERL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 35, .dlc = 8};
+struct can_frame ERL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 36, .dlc = 8};
+
+// External rear right (16 pixels wide)
+struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 37, .dlc = 8};
+struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 38, .dlc = 8};
+struct can_frame ERR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 39, .dlc = 8};
+struct can_frame ERR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 40, .dlc = 8};
 
 // First hex char must be C for random static address
 #define TTPMS_RX_BT_ID "CA:BC:DE:F1:23:69"		// for this device
@@ -81,7 +141,7 @@ static void start_scan(void)
 {
 	int err;
 
-	/* This demo doesn't require active scan */
+	/* We don't require active scan */
 	err = bt_le_scan_start(BT_LE_SCAN_PASSIVE, device_found);
 	if (err) {
 		LOG_WRN("Scanning failed to start (err %d)\n", err);
@@ -157,11 +217,17 @@ void tx_irq_callback(const struct device *dev, int error, void *arg)
 	}
 }
 
+/* --- CAN FUNCTIONS END --- */
+
+
+/* --- WORK AND TIMER FUNCTIONS START --- */
+
 // submitting to system work queue is necessary so that this isn't blocking
 // (SPI was crashing without this)
 void ins_temp_request_work_handler(struct k_work *work)
 {
 	// the actual code to go here will be requesting an update from the TTPMS internal sensor temp characteristics
+	// in interrupt upon receiving the data from sensor will trigger another work handler doing the below
 	test_frame.data[0] = 0x69;
 	test_frame.data[1] = 0x42;
 	test_frame.data[2] = 0x11;
@@ -182,7 +248,8 @@ void ins_temp_request_timer_handler(struct k_timer *dummy)
 
 K_TIMER_DEFINE(ins_temp_request_timer, ins_temp_request_timer_handler, NULL);
 
-/* --- CAN FUNCTIONS END --- */
+/* --- WORK AND TIMER FUNCTIONS END --- */
+
 
 void main(void)
 {
@@ -213,7 +280,7 @@ void main(void)
 
 	err = bt_id_create(&addr, NULL);
 	if (err < 0) {
-		LOG_WRN("Creating new ID failed (err %d)\n", err);
+		LOG_WRN("Creating new BT ID failed (err %d)\n", err);
 	}
 
 	err = bt_enable(NULL);
