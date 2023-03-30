@@ -4,6 +4,15 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/can.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/types.h>
+#include <stddef.h>
+#include <errno.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/sys/byteorder.h>
 
 /* includes for debugging/temporary */
 #include <zephyr/logging/log.h>
@@ -11,7 +20,6 @@
 /* boilerplate defines, etc */
 #define CANBUS_NODE DT_CHOSEN(zephyr_canbus)
 LOG_MODULE_REGISTER(ttpms);
-
 
 const struct device *can_dev = DEVICE_DT_GET(CANBUS_NODE);
 
@@ -21,8 +29,122 @@ struct can_frame test_frame = {
 		.dlc = 8,
 };
 
+// First hex char must be C for random static address
+#define TTPMS_RX_BT_ID "CA:BC:DE:F1:23:69"		// for this device
+#define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle
 
-// this callback function is necessary so that can_send is non-blocking
+static struct bt_conn *default_conn;
+
+/* --- BLE FUNCTIONS START --- */
+
+// start_scan and device_found reference each other, so one must be declared first
+
+static void start_scan(void);
+static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
+			 struct net_buf_simple *ad)
+{
+	int err;
+
+	char addr_str[BT_ADDR_LE_STR_LEN];
+
+	if (default_conn) {
+		return;
+	}
+
+	/* We're only interested in connectable events */
+	if (type != BT_GAP_ADV_TYPE_ADV_IND &&
+	    type != BT_GAP_ADV_TYPE_ADV_DIRECT_IND) {
+		return;
+	}
+
+	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
+
+	//each TTPMS device role (IFL sensor, ERR sensor, receiver, etc) has it's own BT ID. See how this ID is set up in main
+	if (strncmp(addr_str, TTPMS_TEST_BT_ID, 17) == 0) {
+		LOG_INF("Found TTPMS Test Sensor, RSSI: %d", rssi);
+	} else {
+		return;
+	}
+
+	if (bt_le_scan_stop()) {
+		return;
+	}
+
+	err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN, BT_LE_CONN_PARAM_DEFAULT, &default_conn);
+	if (err) {
+		LOG_WRN("Create conn failed (%u)\n", err);
+		start_scan();
+	}
+}
+
+static void start_scan(void)
+{
+	int err;
+
+	/* This demo doesn't require active scan */
+	err = bt_le_scan_start(BT_LE_SCAN_PASSIVE, device_found);
+	if (err) {
+		LOG_WRN("Scanning failed to start (err %d)\n", err);
+		return;
+	}
+
+	LOG_INF("Scanning successfully started\n");
+}
+
+static void connected(struct bt_conn *conn, uint8_t err)
+{
+	char addr[BT_ADDR_LE_STR_LEN];
+
+	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+
+	if (err) {
+		LOG_WRN("Failed to connect to %s (%u)\n", addr, err);
+
+		bt_conn_unref(default_conn);
+		default_conn = NULL;
+
+		start_scan();
+		return;
+	}
+
+	if (conn != default_conn) {
+		return;
+	}
+
+	LOG_INF("Connected: %s\n", addr);
+
+	//bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+}
+
+static void disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	char addr[BT_ADDR_LE_STR_LEN];
+
+	if (conn != default_conn) {
+		return;
+	}
+
+	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+
+	LOG_INF("Disconnected: %s (reason 0x%02x)\n", addr, reason);
+
+	bt_conn_unref(default_conn);
+	default_conn = NULL;
+
+	start_scan();
+}
+
+BT_CONN_CB_DEFINE(conn_callbacks) = {
+	.connected = connected,
+	.disconnected = disconnected,
+};
+
+/* --- BLE FUNCTIONS END --- */
+
+
+/* --- CAN FUNCTIONS START --- */
+
+// CAN TX callback function (necessary for non-blocking TX)
 void tx_irq_callback(const struct device *dev, int error, void *arg)
 {
 	char *sender = (char *)arg;
@@ -35,9 +157,8 @@ void tx_irq_callback(const struct device *dev, int error, void *arg)
 	}
 }
 
-
 // submitting to system work queue is necessary so that this isn't blocking
-// (ie SPI timing gets screwed up if you execute this directly code in the timer handler)
+// (SPI was crashing without this)
 void ins_temp_request_work_handler(struct k_work *work)
 {
 	// the actual code to go here will be requesting an update from the TTPMS internal sensor temp characteristics
@@ -61,13 +182,14 @@ void ins_temp_request_timer_handler(struct k_timer *dummy)
 
 K_TIMER_DEFINE(ins_temp_request_timer, ins_temp_request_timer_handler, NULL);
 
+/* --- CAN FUNCTIONS END --- */
 
 void main(void)
 {
 	LOG_INF("Running ttpms_v2_receiver");
 
 	int err;
-
+	/*
 	if (!device_is_ready(can_dev)) {
 		LOG_WRN("CAN device not ready");
 		return;
@@ -80,5 +202,26 @@ void main(void)
 	}
 
 	k_timer_start(&ins_temp_request_timer, K_MSEC(100), K_MSEC(10));	// wait 100ms then execute every 10ms
-	
+	*/
+
+	bt_addr_le_t addr;
+
+	err = bt_addr_le_from_str(TTPMS_RX_BT_ID, "random", &addr);
+	if (err) {
+		LOG_WRN("Invalid BT address (err %d)\n", err);
+	}
+
+	err = bt_id_create(&addr, NULL);
+	if (err < 0) {
+		LOG_WRN("Creating new ID failed (err %d)\n", err);
+	}
+
+	err = bt_enable(NULL);
+	if (err) {
+		LOG_WRN("Bluetooth init failed (err %d)\n", err);
+	} else {
+		LOG_INF("Bluetooth initialized\n");
+	}
+
+	start_scan();
 }

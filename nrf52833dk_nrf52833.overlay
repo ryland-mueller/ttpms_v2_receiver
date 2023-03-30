@@ -14,6 +14,8 @@
 
 /* disabling all unused peripherals */
 
+// disable ADC?
+
 &uart0 {
     status = "disabled";
 };
