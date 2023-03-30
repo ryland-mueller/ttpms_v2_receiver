@@ -29,69 +29,82 @@ struct can_frame test_frame = {
 		.dlc = 8
 };
 
-#define TTPMS_CAN_BASE_ID 0x100
+// Standard 11-bit CAN IDs can be up to 2047 (0x7FF). Lower = higher priority
+#define TTPMS_CAN_BASE_ID 0x400
+
+/* START CAN FRAMES*/
+// Ensure this is always up to date with CAN .dbc file to be kept in version control by the team
+
+// This frame is sent by dash or other controller to enable & configure TTPMS
+struct can_frame TTPMS_settings = {.flags = 0, .id = TTPMS_CAN_BASE_ID, .dlc = 1};
+
+// This frame is sent out by TTPMS RX to indicate general data
+struct can_frame TTPMS_status = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
 
 // All temp values are signed 16 bit integer (0.01 scale, 0 offset)
+// Each CAN frame can only hold 8 data bytes. Thus multiple are needed for each full sensor reading
 
 // Internal front left (16 pixels wide)
-struct can_frame IFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
-struct can_frame IFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 2, .dlc = 8};
-struct can_frame IFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 3, .dlc = 8};
-struct can_frame IFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 4, .dlc = 8};
+struct can_frame IFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 2, .dlc = 8};
+struct can_frame IFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 3, .dlc = 8};
+struct can_frame IFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 4, .dlc = 8};
+struct can_frame IFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 5, .dlc = 8};
 
 // Internal front right (16 pixels wide)
-struct can_frame IFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 5, .dlc = 8};
-struct can_frame IFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 6, .dlc = 8};
-struct can_frame IFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 7, .dlc = 8};
-struct can_frame IFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 8, .dlc = 8};
+struct can_frame IFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 6, .dlc = 8};
+struct can_frame IFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 7, .dlc = 8};
+struct can_frame IFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 8, .dlc = 8};
+struct can_frame IFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 9, .dlc = 8};
 
 // Internal rear left (16 pixels wide)
-struct can_frame IRL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 9, .dlc = 8};
-struct can_frame IRL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 10, .dlc = 8};
-struct can_frame IRL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 11, .dlc = 8};
-struct can_frame IRL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 12, .dlc = 8};
+struct can_frame IRL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 10, .dlc = 8};
+struct can_frame IRL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 11, .dlc = 8};
+struct can_frame IRL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 12, .dlc = 8};
+struct can_frame IRL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 13, .dlc = 8};
 
 // Internal rear right (16 pixels wide)
-struct can_frame IRR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 13, .dlc = 8};
-struct can_frame IRR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 14, .dlc = 8};
-struct can_frame IRR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 15, .dlc = 8};
-struct can_frame IRR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 16, .dlc = 8};
+struct can_frame IRR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 14, .dlc = 8};
+struct can_frame IRR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 15, .dlc = 8};
+struct can_frame IRR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 16, .dlc = 8};
+struct can_frame IRR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 17, .dlc = 8};
 
 // External front left (32 pixels wide)
-struct can_frame EFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 17, .dlc = 8};
-struct can_frame EFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 18, .dlc = 8};
-struct can_frame EFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 19, .dlc = 8};
-struct can_frame EFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 20, .dlc = 8};
-struct can_frame EFL_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 21, .dlc = 8};
-struct can_frame EFL_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 22, .dlc = 8};
-struct can_frame EFL_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 8};
-struct can_frame EFL_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
+struct can_frame EFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 18, .dlc = 8};
+struct can_frame EFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 19, .dlc = 8};
+struct can_frame EFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 20, .dlc = 8};
+struct can_frame EFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 21, .dlc = 8};
+struct can_frame EFL_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 22, .dlc = 8};
+struct can_frame EFL_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 8};
+struct can_frame EFL_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
+struct can_frame EFL_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
 
 // External front right (32 pixels wide)
-struct can_frame EFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
-struct can_frame EFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 26, .dlc = 8};
-struct can_frame EFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 27, .dlc = 8};
-struct can_frame EFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 28, .dlc = 8};
-struct can_frame EFR_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 29, .dlc = 8};
-struct can_frame EFR_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 30, .dlc = 8};
-struct can_frame EFR_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 31, .dlc = 8};
-struct can_frame EFR_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 32, .dlc = 8};
+struct can_frame EFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 26, .dlc = 8};
+struct can_frame EFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 27, .dlc = 8};
+struct can_frame EFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 28, .dlc = 8};
+struct can_frame EFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 29, .dlc = 8};
+struct can_frame EFR_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 30, .dlc = 8};
+struct can_frame EFR_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 31, .dlc = 8};
+struct can_frame EFR_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 32, .dlc = 8};
+struct can_frame EFR_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 33, .dlc = 8};
 
 // External rear left (16 pixels wide)
-struct can_frame ERL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 33, .dlc = 8};
-struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 34, .dlc = 8};
-struct can_frame ERL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 35, .dlc = 8};
-struct can_frame ERL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 36, .dlc = 8};
+struct can_frame ERL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 34, .dlc = 8};
+struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 35, .dlc = 8};
+struct can_frame ERL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 36, .dlc = 8};
+struct can_frame ERL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 37, .dlc = 8};
 
 // External rear right (16 pixels wide)
-struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 37, .dlc = 8};
-struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 38, .dlc = 8};
-struct can_frame ERR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 39, .dlc = 8};
-struct can_frame ERR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 40, .dlc = 8};
+struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 38, .dlc = 8};
+struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 39, .dlc = 8};
+struct can_frame ERR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 40, .dlc = 8};
+struct can_frame ERR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 41, .dlc = 8};
+
+/* END CAN FRAMES*/
 
 // First hex char must be C for random static address
 #define TTPMS_RX_BT_ID "CA:BC:DE:F1:23:69"		// for this device
-#define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle
+#define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle (for testing, may change randomly?)
 
 static struct bt_conn *default_conn;
 
