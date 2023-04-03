@@ -26768,7 +26768,7 @@ static void start_scan(void)
    1094c:	b530      	push	{r4, r5, lr}
 	int err;
 
-	/* This demo doesn't require active scan */
+	/* We don't require active scan */
 	err = bt_le_scan_start(BT_LE_SCAN_PASSIVE, device_found);
    1094e:	4d11      	ldr	r5, [pc, #68]	; (10994 <start_scan+0x48>)
    10950:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
@@ -26897,7 +26897,7 @@ static inline int bt_addr_le_to_str(const bt_addr_le_t *addr, char *str,
    10a10:	00021cfd 	.word	0x00021cfd
    10a14:	00021d04 	.word	0x00021d04
    10a18:	00021d0e 	.word	0x00021d0e
-   10a1c:	0002304e 	.word	0x0002304e
+   10a1c:	00023051 	.word	0x00023051
 
 00010a20 <disconnected>:
 
@@ -27090,9 +27090,9 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
    10b80:	00021dbe 	.word	0x00021dbe
 
 00010b84 <main>:
-K_TIMER_DEFINE(ins_temp_request_timer, ins_temp_request_timer_handler, NULL);
 
-/* --- CAN FUNCTIONS END --- */
+/* --- WORK AND TIMER FUNCTIONS END --- */
+
 
 void main(void)
 {
@@ -27139,7 +27139,7 @@ void main(void)
 	if (err < 0) {
    10bc8:	2800      	cmp	r0, #0
    10bca:	da0a      	bge.n	10be2 <main+0x5e>
-		LOG_WRN("Creating new ID failed (err %d)\n", err);
+		LOG_WRN("Creating new BT ID failed (err %d)\n", err);
    10bcc:	4b18      	ldr	r3, [pc, #96]	; (10c30 <main+0xac>)
    10bce:	9302      	str	r3, [sp, #8]
    10bd0:	2300      	movs	r3, #0
@@ -27189,8 +27189,8 @@ void main(void)
    10c28:	00021df1 	.word	0x00021df1
    10c2c:	00021e03 	.word	0x00021e03
    10c30:	00021e20 	.word	0x00021e20
-   10c34:	00021e41 	.word	0x00021e41
-   10c38:	00021e61 	.word	0x00021e61
+   10c34:	00021e44 	.word	0x00021e44
+   10c38:	00021e64 	.word	0x00021e64
 
 00010c3c <cbvprintf_package>:
 	return cb(str, strl, ctx);
@@ -27610,7 +27610,7 @@ int cbvprintf_package(void *packaged, size_t len, uint32_t flags,
    10f10:	e6ae      	b.n	10c70 <cbvprintf_package+0x34>
    10f12:	bf00      	nop
    10f14:	000211bc 	.word	0x000211bc
-   10f18:	00023a90 	.word	0x00023a90
+   10f18:	00023a94 	.word	0x00023a94
 	if (rws_pos_en) {
    10f1c:	9a02      	ldr	r2, [sp, #8]
 	*(char **)buf0 = NULL;
@@ -29104,7 +29104,7 @@ static inline int isdigit(int a)
    11998:	3501      	adds	r5, #1
 			--width;
    1199a:	e7f3      	b.n	11984 <z_cbvprintf_impl+0x748>
-   1199c:	00021e8f 	.word	0x00021e8f
+   1199c:	00021e92 	.word	0x00021e92
 
 000119a0 <z_arm_platform_init>:
 	 */
@@ -29713,8 +29713,8 @@ static int print_formatted(const struct log_output *output,
 }
    11c70:	4770      	bx	lr
    11c72:	bf00      	nop
-   11c74:	00021ea3 	.word	0x00021ea3
-   11c78:	00021ea2 	.word	0x00021ea2
+   11c74:	00021ea6 	.word	0x00021ea6
+   11c78:	00021ea5 	.word	0x00021ea5
 
 00011c7c <log_output_process>:
 			uint8_t level,
@@ -30068,26 +30068,26 @@ static int print_formatted(const struct log_output *output,
    11eca:	f7ff feb7 	bl	11c3c <print_formatted>
 }
    11ece:	e739      	b.n	11d44 <log_output_process+0xc8>
-   11ed0:	00021eaa 	.word	0x00021eaa
-   11ed4:	00021eae 	.word	0x00021eae
+   11ed0:	00021ead 	.word	0x00021ead
+   11ed4:	00021eb1 	.word	0x00021eb1
    11ed8:	00021688 	.word	0x00021688
-   11edc:	00022591 	.word	0x00022591
-   11ee0:	00021ea5 	.word	0x00021ea5
+   11edc:	00022594 	.word	0x00022594
+   11ee0:	00021ea8 	.word	0x00021ea8
    11ee4:	0002169c 	.word	0x0002169c
-   11ee8:	00021ed3 	.word	0x00021ed3
-   11eec:	00021ed9 	.word	0x00021ed9
-   11ef0:	00021edd 	.word	0x00021edd
+   11ee8:	00021ed6 	.word	0x00021ed6
+   11eec:	00021edc 	.word	0x00021edc
+   11ef0:	00021ee0 	.word	0x00021ee0
    11ef4:	200024cc 	.word	0x200024cc
    11ef8:	200024c8 	.word	0x200024c8
-   11efc:	00021eb7 	.word	0x00021eb7
+   11efc:	00021eba 	.word	0x00021eba
    11f00:	0001e0d5 	.word	0x0001e0d5
    11f04:	0001e0b9 	.word	0x0001e0b9
    11f08:	0001e10b 	.word	0x0001e10b
-   11f0c:	00021eea 	.word	0x00021eea
-   11f10:	00021ee2 	.word	0x00021ee2
-   11f14:	00021eec 	.word	0x00021eec
-   11f18:	00021eee 	.word	0x00021eee
-   11f1c:	00021ee8 	.word	0x00021ee8
+   11f0c:	00021eed 	.word	0x00021eed
+   11f10:	00021ee5 	.word	0x00021ee5
+   11f14:	00021eef 	.word	0x00021eef
+   11f18:	00021ef1 	.word	0x00021ef1
+   11f1c:	00021eeb 	.word	0x00021eeb
 
 00011f20 <log_output_msg_process>:
 
@@ -30808,7 +30808,7 @@ static inline void sub_bytes(uint8_t *s)
 	}
 }
    122fa:	4770      	bx	lr
-   122fc:	00021f24 	.word	0x00021f24
+   122fc:	00021f27 	.word	0x00021f27
 
 00012300 <tc_aes128_set_encrypt_key>:
 {
@@ -30906,7 +30906,7 @@ static inline void sub_bytes(uint8_t *s)
    12398:	4620      	mov	r0, r4
    1239a:	e7fb      	b.n	12394 <tc_aes128_set_encrypt_key+0x94>
    1239c:	0002162c 	.word	0x0002162c
-   123a0:	00021f24 	.word	0x00021f24
+   123a0:	00021f27 	.word	0x00021f27
 
 000123a4 <z_arm_cpu_idle_init>:
  * void z_arm_cpu_idle_init(void);
@@ -31080,11 +31080,11 @@ void z_arm_fatal_error(unsigned int reason, const z_arch_esf_t *esf)
    12468:	e8bd 4070 	ldmia.w	sp!, {r4, r5, r6, lr}
 	z_fatal_error(reason, esf);
    1246c:	f009 bbd4 	b.w	1bc18 <z_fatal_error>
-   12470:	00022024 	.word	0x00022024
+   12470:	00022027 	.word	0x00022027
    12474:	000215c4 	.word	0x000215c4
-   12478:	00022053 	.word	0x00022053
-   1247c:	00022082 	.word	0x00022082
-   12480:	00022091 	.word	0x00022091
+   12478:	00022056 	.word	0x00022056
+   1247c:	00022085 	.word	0x00022085
+   12480:	00022094 	.word	0x00022094
 
 00012484 <arch_irq_enable>:
 #define REG_FROM_IRQ(irq) (irq / NUM_IRQS_PER_REG)
@@ -31999,16 +31999,16 @@ static int bus_fault(z_arch_esf_t *esf, int from_hard_fault, bool *recoverable)
    127f6:	4a0a      	ldr	r2, [pc, #40]	; (12820 <bus_fault.constprop.0+0x118>)
    127f8:	9202      	str	r2, [sp, #8]
    127fa:	e7e9      	b.n	127d0 <bus_fault.constprop.0+0xc8>
-   127fc:	000220bf 	.word	0x000220bf
+   127fc:	000220c2 	.word	0x000220c2
    12800:	000215c4 	.word	0x000215c4
    12804:	e000ed00 	.word	0xe000ed00
-   12808:	000220d5 	.word	0x000220d5
-   1280c:	000220e6 	.word	0x000220e6
-   12810:	000220f9 	.word	0x000220f9
-   12814:	00022112 	.word	0x00022112
-   12818:	00022127 	.word	0x00022127
-   1281c:	00022142 	.word	0x00022142
-   12820:	0002215a 	.word	0x0002215a
+   12808:	000220d8 	.word	0x000220d8
+   1280c:	000220e9 	.word	0x000220e9
+   12810:	000220fc 	.word	0x000220fc
+   12814:	00022115 	.word	0x00022115
+   12818:	0002212a 	.word	0x0002212a
+   1281c:	00022145 	.word	0x00022145
+   12820:	0002215d 	.word	0x0002215d
 
 00012824 <usage_fault.constprop.0>:
  *
@@ -32143,15 +32143,15 @@ static uint32_t usage_fault(const z_arch_esf_t *esf)
 }
    128f4:	b004      	add	sp, #16
    128f6:	bd10      	pop	{r4, pc}
-   128f8:	00022189 	.word	0x00022189
+   128f8:	0002218c 	.word	0x0002218c
    128fc:	000215c4 	.word	0x000215c4
    12900:	e000ed00 	.word	0xe000ed00
-   12904:	000221a1 	.word	0x000221a1
-   12908:	000221b4 	.word	0x000221b4
-   1290c:	000221ce 	.word	0x000221ce
-   12910:	000221ec 	.word	0x000221ec
-   12914:	00022211 	.word	0x00022211
-   12918:	0002222b 	.word	0x0002222b
+   12904:	000221a4 	.word	0x000221a4
+   12908:	000221b7 	.word	0x000221b7
+   1290c:	000221d1 	.word	0x000221d1
+   12910:	000221ef 	.word	0x000221ef
+   12914:	00022214 	.word	0x00022214
+   12918:	0002222e 	.word	0x0002222e
 
 0001291c <mem_manage_fault>:
 {
@@ -32326,15 +32326,15 @@ __STATIC_FORCEINLINE void __set_PSP(uint32_t topOfProcStack)
    12a46:	2002      	movs	r0, #2
    12a48:	e7bf      	b.n	129ca <mem_manage_fault+0xae>
    12a4a:	bf00      	nop
-   12a4c:	00022256 	.word	0x00022256
+   12a4c:	00022259 	.word	0x00022259
    12a50:	000215c4 	.word	0x000215c4
    12a54:	e000ed00 	.word	0xe000ed00
-   12a58:	0002226c 	.word	0x0002226c
-   12a5c:	000220e6 	.word	0x000220e6
-   12a60:	000222cd 	.word	0x000222cd
-   12a64:	0002215a 	.word	0x0002215a
-   12a68:	0002229f 	.word	0x0002229f
-   12a6c:	000222b7 	.word	0x000222b7
+   12a58:	0002226f 	.word	0x0002226f
+   12a5c:	000220e9 	.word	0x000220e9
+   12a60:	000222d0 	.word	0x000222d0
+   12a64:	0002215d 	.word	0x0002215d
+   12a68:	000222a2 	.word	0x000222a2
+   12a6c:	000222ba 	.word	0x000222ba
 
 00012a70 <z_arm_fault>:
  * @param callee_regs Callee-saved registers (R4-R11, PSP)
@@ -32601,17 +32601,17 @@ void z_arm_fault(uint32_t msp, uint32_t psp, uint32_t exc_return,
    12c3a:	f023 0301 	bic.w	r3, r3, #1
    12c3e:	e7c2      	b.n	12bc6 <z_arm_fault+0x156>
    12c40:	e000ed00 	.word	0xe000ed00
-   12c44:	0002231a 	.word	0x0002231a
+   12c44:	0002231d 	.word	0x0002231d
    12c48:	000215c4 	.word	0x000215c4
-   12c4c:	00022345 	.word	0x00022345
-   12c50:	0002235c 	.word	0x0002235c
-   12c54:	0002237d 	.word	0x0002237d
-   12c58:	0002238b 	.word	0x0002238b
-   12c5c:	000223aa 	.word	0x000223aa
-   12c60:	000223c6 	.word	0x000223c6
-   12c64:	00022301 	.word	0x00022301
-   12c68:	000222ec 	.word	0x000222ec
-   12c6c:	000223ea 	.word	0x000223ea
+   12c4c:	00022348 	.word	0x00022348
+   12c50:	0002235f 	.word	0x0002235f
+   12c54:	00022380 	.word	0x00022380
+   12c58:	0002238e 	.word	0x0002238e
+   12c5c:	000223ad 	.word	0x000223ad
+   12c60:	000223c9 	.word	0x000223c9
+   12c64:	00022304 	.word	0x00022304
+   12c68:	000222ef 	.word	0x000222ef
+   12c6c:	000223ed 	.word	0x000223ed
 
 00012c70 <z_arm_fault_init>:
  */
@@ -33113,9 +33113,9 @@ static inline uint32_t size_to_mpu_rasr_size(uint32_t size)
    12e8c:	300c      	adds	r0, #12
    12e8e:	e7b1      	b.n	12df4 <mpu_configure_regions+0x8>
    12e90:	e000ed00 	.word	0xe000ed00
-   12e94:	00022401 	.word	0x00022401
+   12e94:	00022404 	.word	0x00022404
    12e98:	000215b4 	.word	0x000215b4
-   12e9c:	00022424 	.word	0x00022424
+   12e9c:	00022427 	.word	0x00022427
 
 00012ea0 <arm_core_mpu_enable>:
 	 * background region for privileged software access if desired.
@@ -33477,7 +33477,7 @@ void arch_busy_wait(uint32_t time_us)
 	for (i = 0; i < len; i++) {
    13026:	e7e9      	b.n	12ffc <bt_hex+0x10>
    13028:	20002973 	.word	0x20002973
-   1302c:	00022470 	.word	0x00022470
+   1302c:	00022473 	.word	0x00022473
 
 00013030 <bt_addr_le_str>:
 
@@ -33551,7 +33551,7 @@ const char *bt_addr_le_str(const bt_addr_le_t *addr)
    1309c:	00021cfd 	.word	0x00021cfd
    130a0:	00021d04 	.word	0x00021d04
    130a4:	00021d0e 	.word	0x00021d0e
-   130a8:	0002304e 	.word	0x0002304e
+   130a8:	00023051 	.word	0x00023051
 
 000130ac <long_wq_init>:
 {
@@ -33598,7 +33598,7 @@ static int long_wq_init(const struct device *d)
    130d4:	b005      	add	sp, #20
    130d6:	bd30      	pop	{r4, r5, pc}
    130d8:	20001818 	.word	0x20001818
-   130dc:	00022481 	.word	0x00022481
+   130dc:	00022484 	.word	0x00022484
    130e0:	20002f00 	.word	0x20002f00
 
 000130e4 <bt_long_wq_schedule>:
@@ -33692,7 +33692,7 @@ static inline void sys_put_le32(uint32_t val, uint8_t dst[4])
    13150:	2211      	movs	r2, #17
    13152:	4619      	mov	r1, r3
    13154:	f00b baa0 	b.w	1e698 <memcpy>
-   13158:	0002248a 	.word	0x0002248a
+   13158:	0002248d 	.word	0x0002248d
 
 0001315c <bt_addr_from_str>:
 
@@ -33853,13 +33853,13 @@ int bt_addr_le_from_str(const char *str, const char *type, bt_addr_le_t *addr)
    13248:	e7ce      	b.n	131e8 <bt_addr_le_from_str+0x20>
    1324a:	bf00      	nop
    1324c:	00021cf6 	.word	0x00021cf6
-   13250:	0002249b 	.word	0x0002249b
+   13250:	0002249e 	.word	0x0002249e
    13254:	00021cfd 	.word	0x00021cfd
-   13258:	000224a4 	.word	0x000224a4
+   13258:	000224a7 	.word	0x000224a7
    1325c:	00021d04 	.word	0x00021d04
-   13260:	000224ad 	.word	0x000224ad
+   13260:	000224b0 	.word	0x000224b0
    13264:	00021d0e 	.word	0x00021d0e
-   13268:	000224b9 	.word	0x000224b9
+   13268:	000224bc 	.word	0x000224bc
 
 0001326c <bt_buf_get_rx>:
 			  BT_BUF_RX_SIZE, 8,
@@ -34089,7 +34089,7 @@ static void hci_disconn_complete_prio(struct net_buf *buf)
    13372:	f85d fb04 	ldr.w	pc, [sp], #4
    13376:	bf00      	nop
    13378:	00021534 	.word	0x00021534
-   1337c:	000224c5 	.word	0x000224c5
+   1337c:	000224c8 	.word	0x000224c8
 
 00013380 <le_conn_update_complete>:
 
@@ -34183,7 +34183,7 @@ static void le_conn_update_complete(struct net_buf *buf)
    13404:	f002 fb62 	bl	15acc <notify_le_param_updated>
    13408:	e7e7      	b.n	133da <le_conn_update_complete+0x5a>
    1340a:	bf00      	nop
-   1340c:	000224ed 	.word	0x000224ed
+   1340c:	000224f0 	.word	0x000224f0
    13410:	00021534 	.word	0x00021534
 
 00013414 <rx_queue_put>:
@@ -34228,7 +34228,7 @@ static void rx_queue_put(struct net_buf *buf)
    13448:	200004a4 	.word	0x200004a4
    1344c:	2000065c 	.word	0x2000065c
    13450:	20001938 	.word	0x20001938
-   13454:	00022511 	.word	0x00022511
+   13454:	00022514 	.word	0x00022514
    13458:	00021534 	.word	0x00021534
 
 0001345c <hci_hardware_error>:
@@ -34257,7 +34257,7 @@ static inline void *net_buf_pull_mem(struct net_buf *buf, size_t len)
 }
    1347e:	b005      	add	sp, #20
    13480:	f85d fb04 	ldr.w	pc, [sp], #4
-   13484:	0002252e 	.word	0x0002252e
+   13484:	00022531 	.word	0x00022531
    13488:	00021534 	.word	0x00021534
 
 0001348c <le_data_len_change>:
@@ -34287,7 +34287,7 @@ static inline void *net_buf_pull_mem(struct net_buf *buf, size_t len)
    134b4:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
 	bt_conn_unref(conn);
    134b8:	f00b bb05 	b.w	1eac6 <bt_conn_unref>
-   134bc:	000224ed 	.word	0x000224ed
+   134bc:	000224f0 	.word	0x000224f0
    134c0:	00021534 	.word	0x00021534
 
 000134c4 <le_phy_update_complete>:
@@ -34318,7 +34318,7 @@ static inline void *net_buf_pull_mem(struct net_buf *buf, size_t len)
 	bt_conn_unref(conn);
    134f2:	f00b bae8 	b.w	1eac6 <bt_conn_unref>
    134f6:	bf00      	nop
-   134f8:	000224ed 	.word	0x000224ed
+   134f8:	000224f0 	.word	0x000224f0
    134fc:	00021534 	.word	0x00021534
 
 00013500 <handle_event>:
@@ -34381,9 +34381,9 @@ static inline void *net_buf_pull_mem(struct net_buf *buf, size_t len)
    1356e:	460a      	mov	r2, r1
    13570:	e7cc      	b.n	1350c <handle_event+0xc>
    13572:	bf00      	nop
-   13574:	00022572 	.word	0x00022572
+   13574:	00022575 	.word	0x00022575
    13578:	00021534 	.word	0x00021534
-   1357c:	00022550 	.word	0x00022550
+   1357c:	00022553 	.word	0x00022553
 
 00013580 <rx_work_handler>:
 	}
@@ -34597,19 +34597,19 @@ static inline enum bt_buf_type bt_buf_get_type(struct net_buf *buf)
    136cc:	4618      	mov	r0, r3
    136ce:	e7a1      	b.n	13614 <rx_work_handler+0x94>
    136d0:	200004a4 	.word	0x200004a4
-   136d4:	00022594 	.word	0x00022594
-   136d8:	000225c8 	.word	0x000225c8
-   136dc:	000225e1 	.word	0x000225e1
-   136e0:	000225fe 	.word	0x000225fe
+   136d4:	00022597 	.word	0x00022597
+   136d8:	000225cb 	.word	0x000225cb
+   136dc:	000225e4 	.word	0x000225e4
+   136e0:	00022601 	.word	0x00022601
    136e4:	00021534 	.word	0x00021534
-   136e8:	00022622 	.word	0x00022622
+   136e8:	00022625 	.word	0x00022625
    136ec:	20000370 	.word	0x20000370
    136f0:	2000065c 	.word	0x2000065c
    136f4:	20001938 	.word	0x20001938
-   136f8:	00022511 	.word	0x00022511
-   136fc:	00022644 	.word	0x00022644
+   136f8:	00022514 	.word	0x00022514
+   136fc:	00022647 	.word	0x00022647
    13700:	00021760 	.word	0x00021760
-   13704:	00022672 	.word	0x00022672
+   13704:	00022675 	.word	0x00022675
 
 00013708 <hci_le_meta_event>:
 {
@@ -34674,7 +34674,7 @@ static inline enum bt_buf_type bt_buf_get_type(struct net_buf *buf)
 	bt_conn_unref(conn);
    13772:	f00b b9a8 	b.w	1eac6 <bt_conn_unref>
    13776:	bf00      	nop
-   13778:	000224ed 	.word	0x000224ed
+   13778:	000224f0 	.word	0x000224f0
    1377c:	00021534 	.word	0x00021534
 
 00013780 <hci_cmd_done>:
@@ -34813,10 +34813,10 @@ static inline void atomic_set_bit_to(atomic_t *target, int bit, bool val)
    13884:	e7e0      	b.n	13848 <hci_cmd_done+0xc8>
    13886:	bf00      	nop
    13888:	20000978 	.word	0x20000978
-   1388c:	00022686 	.word	0x00022686
+   1388c:	00022689 	.word	0x00022689
    13890:	00021534 	.word	0x00021534
    13894:	20002518 	.word	0x20002518
-   13898:	000226bb 	.word	0x000226bb
+   13898:	000226be 	.word	0x000226be
    1389c:	20000370 	.word	0x20000370
 
 000138a0 <hci_cmd_status>:
@@ -35001,8 +35001,8 @@ Z_GENLIST_APPEND(slist, snode)
    139ec:	6263      	str	r3, [r4, #36]	; 0x24
 }
    139ee:	e7f4      	b.n	139da <hci_num_completed_packets+0xde>
-   139f0:	0002270a 	.word	0x0002270a
-   139f4:	000226ee 	.word	0x000226ee
+   139f0:	0002270d 	.word	0x0002270d
+   139f4:	000226f1 	.word	0x000226f1
    139f8:	00021534 	.word	0x00021534
 
 000139fc <hci_disconn_complete>:
@@ -35069,7 +35069,7 @@ Z_GENLIST_APPEND(slist, snode)
    13a60:	f001 fa9c 	bl	14f9c <bt_le_scan_update>
    13a64:	e7ea      	b.n	13a3c <hci_disconn_complete+0x40>
    13a66:	bf00      	nop
-   13a68:	00022721 	.word	0x00022721
+   13a68:	00022724 	.word	0x00022724
    13a6c:	00021534 	.word	0x00021534
 
 00013a70 <bt_hci_cmd_state_set_init>:
@@ -35244,11 +35244,11 @@ Z_GENLIST_APPEND(slist, snode)
    13bd2:	e7f1      	b.n	13bb8 <bt_hci_cmd_send_sync+0xb0>
    13bd4:	20002518 	.word	0x20002518
    13bd8:	200004ac 	.word	0x200004ac
-   13bdc:	00022594 	.word	0x00022594
-   13be0:	00022747 	.word	0x00022747
-   13be4:	000225e1 	.word	0x000225e1
-   13be8:	00022750 	.word	0x00022750
-   13bec:	00022770 	.word	0x00022770
+   13bdc:	00022597 	.word	0x00022597
+   13be0:	0002274a 	.word	0x0002274a
+   13be4:	000225e4 	.word	0x000225e4
+   13be8:	00022753 	.word	0x00022753
+   13bec:	00022773 	.word	0x00022773
    13bf0:	00021534 	.word	0x00021534
 
 00013bf4 <hci_le_read_max_data_len>:
@@ -35291,7 +35291,7 @@ Z_GENLIST_APPEND(slist, snode)
    13c36:	f004 fb1b 	bl	18270 <net_buf_unref>
 	return 0;
    13c3a:	e7f1      	b.n	13c20 <hci_le_read_max_data_len+0x2c>
-   13c3c:	0002278c 	.word	0x0002278c
+   13c3c:	0002278f 	.word	0x0002278f
    13c40:	00021534 	.word	0x00021534
 
 00013c44 <bt_hci_le_rand>:
@@ -35442,7 +35442,7 @@ Z_GENLIST_APPEND(slist, snode)
 		return -ENOBUFS;
    13d4a:	f06f 0568 	mvn.w	r5, #104	; 0x68
    13d4e:	e7f9      	b.n	13d44 <bt_le_create_conn+0xa8>
-   13d50:	0002245d 	.word	0x0002245d
+   13d50:	00022460 	.word	0x00022460
    13d54:	20000370 	.word	0x20000370
 
 00013d58 <bt_le_create_conn_cancel>:
@@ -35813,15 +35813,15 @@ Z_GENLIST_APPEND(slist, snode)
    14016:	f06f 0068 	mvn.w	r0, #104	; 0x68
    1401a:	e7ae      	b.n	13f7a <bt_hci_le_enh_conn_complete+0x1ee>
    1401c:	20002940 	.word	0x20002940
-   14020:	000227ac 	.word	0x000227ac
+   14020:	000227af 	.word	0x000227af
    14024:	00021534 	.word	0x00021534
-   14028:	000227ca 	.word	0x000227ca
-   1402c:	000227e3 	.word	0x000227e3
+   14028:	000227cd 	.word	0x000227cd
+   1402c:	000227e6 	.word	0x000227e6
    14030:	20000370 	.word	0x20000370
    14034:	2000043c 	.word	0x2000043c
-   14038:	000227ff 	.word	0x000227ff
-   1403c:	00022820 	.word	0x00022820
-   14040:	00022837 	.word	0x00022837
+   14038:	00022802 	.word	0x00022802
+   1403c:	00022823 	.word	0x00022823
+   14040:	0002283a 	.word	0x0002283a
 
 00014044 <le_legacy_conn_complete>:
 {
@@ -35872,7 +35872,7 @@ Z_GENLIST_APPEND(slist, snode)
 }
    140a4:	b008      	add	sp, #32
    140a6:	bd10      	pop	{r4, pc}
-   140a8:	0002246a 	.word	0x0002246a
+   140a8:	0002246d 	.word	0x0002246d
 
 000140ac <bt_send>:
 	return bt_dev.drv->send(buf);
@@ -35933,7 +35933,7 @@ Z_GENLIST_APPEND(slist, snode)
 			return -ENOBUFS;
    1410e:	f06f 0568 	mvn.w	r5, #104	; 0x68
    14112:	e7f3      	b.n	140fc <bt_hci_cmd_send+0x40>
-   14114:	00022853 	.word	0x00022853
+   14114:	00022856 	.word	0x00022856
    14118:	00021534 	.word	0x00021534
    1411c:	200004ac 	.word	0x200004ac
 
@@ -35977,7 +35977,7 @@ Z_GENLIST_APPEND(slist, snode)
 	bt_hci_cmd_send(BT_HCI_OP_LE_CONN_PARAM_REQ_NEG_REPLY, buf);
    14162:	f7ff bfab 	b.w	140bc <bt_hci_cmd_send>
    14166:	bf00      	nop
-   14168:	00022875 	.word	0x00022875
+   14168:	00022878 	.word	0x00022878
    1416c:	00021534 	.word	0x00021534
 
 00014170 <le_conn_param_req>:
@@ -36084,7 +36084,7 @@ Z_GENLIST_APPEND(slist, snode)
    1422a:	f242 0020 	movw	r0, #8224	; 0x2020
    1422e:	f7ff ff45 	bl	140bc <bt_hci_cmd_send>
    14232:	e7d7      	b.n	141e4 <le_conn_param_req+0x74>
-   14234:	000224ed 	.word	0x000224ed
+   14234:	000224f0 	.word	0x000224f0
    14238:	00021534 	.word	0x00021534
 
 0001423c <hci_tx_thread>:
@@ -36254,18 +36254,18 @@ Z_GENLIST_APPEND(slist, snode)
    14388:	e7e8      	b.n	1435c <hci_tx_thread+0x120>
    1438a:	bf00      	nop
    1438c:	20000620 	.word	0x20000620
-   14390:	00022594 	.word	0x00022594
-   14394:	00022747 	.word	0x00022747
-   14398:	000225e1 	.word	0x000225e1
+   14390:	00022597 	.word	0x00022597
+   14394:	0002274a 	.word	0x0002274a
+   14398:	000225e4 	.word	0x000225e4
    1439c:	200004ac 	.word	0x200004ac
-   143a0:	0002328c 	.word	0x0002328c
+   143a0:	0002328f 	.word	0x0002328f
    143a4:	20000370 	.word	0x20000370
    143a8:	20000488 	.word	0x20000488
-   143ac:	0002288f 	.word	0x0002288f
+   143ac:	00022892 	.word	0x00022892
    143b0:	00021534 	.word	0x00021534
-   143b4:	00022853 	.word	0x00022853
+   143b4:	00022856 	.word	0x00022856
    143b8:	20002518 	.word	0x20002518
-   143bc:	000228aa 	.word	0x000228aa
+   143bc:	000228ad 	.word	0x000228ad
 
 000143c0 <hci_event_prio>:
 {
@@ -36339,10 +36339,10 @@ Z_GENLIST_APPEND(slist, snode)
    14448:	e8bd 41f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, lr}
 		net_buf_unref(buf);
    1444c:	f003 bf10 	b.w	18270 <net_buf_unref>
-   14450:	00022594 	.word	0x00022594
-   14454:	000225c8 	.word	0x000225c8
-   14458:	000225e1 	.word	0x000225e1
-   1445c:	000228cb 	.word	0x000228cb
+   14450:	00022597 	.word	0x00022597
+   14454:	000225cb 	.word	0x000225cb
+   14458:	000225e4 	.word	0x000225e4
+   1445c:	000228ce 	.word	0x000228ce
    14460:	00021738 	.word	0x00021738
 
 00014464 <bt_recv>:
@@ -36402,7 +36402,7 @@ Z_GENLIST_APPEND(slist, snode)
 		return -EINVAL;
    144b6:	f06f 0015 	mvn.w	r0, #21
    144ba:	e7de      	b.n	1447a <bt_recv+0x16>
-   144bc:	000228e4 	.word	0x000228e4
+   144bc:	000228e7 	.word	0x000228e7
    144c0:	00021534 	.word	0x00021534
 
 000144c4 <bt_hci_driver_register>:
@@ -36840,11 +36840,11 @@ static inline uint64_t sys_get_le64(const uint8_t src[8])
    147f4:	20000370 	.word	0x20000370
    147f8:	200003e0 	.word	0x200003e0
    147fc:	200003e8 	.word	0x200003e8
-   14800:	000228f8 	.word	0x000228f8
+   14800:	000228fb 	.word	0x000228fb
    14804:	00021534 	.word	0x00021534
    14808:	20000440 	.word	0x20000440
    1480c:	20000470 	.word	0x20000470
-   14810:	0002291c 	.word	0x0002291c
+   14810:	0002291f 	.word	0x0002291f
    14814:	2108      	movs	r1, #8
    14816:	300c      	adds	r0, #12
    14818:	f00b fa0f 	bl	1fc3a <net_buf_simple_add>
@@ -36968,11 +36968,11 @@ static inline uint64_t sys_get_le64(const uint8_t src[8])
    148e8:	4620      	mov	r0, r4
    148ea:	f003 fcc1 	bl	18270 <net_buf_unref>
    148ee:	e7ce      	b.n	1488e <bt_init+0x38a>
-   148f0:	0002293f 	.word	0x0002293f
-   148f4:	00022963 	.word	0x00022963
+   148f0:	00022942 	.word	0x00022942
+   148f4:	00022966 	.word	0x00022966
    148f8:	00021534 	.word	0x00021534
    148fc:	20000429 	.word	0x20000429
-   14900:	0002298c 	.word	0x0002298c
+   14900:	0002298f 	.word	0x0002298f
    14904:	20000428 	.word	0x20000428
 
 00014908 <init_work>:
@@ -37111,17 +37111,17 @@ int bt_enable(bt_ready_cb_t cb)
    149fe:	f06f 0577 	mvn.w	r5, #119	; 0x77
    14a02:	e79f      	b.n	14944 <bt_enable+0x24>
    14a04:	20000370 	.word	0x20000370
-   14a08:	000229b5 	.word	0x000229b5
+   14a08:	000229b8 	.word	0x000229b8
    14a0c:	00021534 	.word	0x00021534
    14a10:	20002530 	.word	0x20002530
    14a14:	0001423d 	.word	0x0001423d
    14a18:	20003480 	.word	0x20003480
    14a1c:	200018b8 	.word	0x200018b8
-   14a20:	000229ce 	.word	0x000229ce
+   14a20:	000229d1 	.word	0x000229d1
    14a24:	20001938 	.word	0x20001938
    14a28:	20003ac0 	.word	0x20003ac0
-   14a2c:	000229d4 	.word	0x000229d4
-   14a30:	000229da 	.word	0x000229da
+   14a2c:	000229d7 	.word	0x000229d7
+   14a30:	000229dd 	.word	0x000229dd
 
 00014a34 <bt_is_ready>:
 	return __atomic_load_n(target, __ATOMIC_SEQ_CST);
@@ -37149,7 +37149,7 @@ bool bt_is_ready(void)
 }
    14a4c:	4800      	ldr	r0, [pc, #0]	; (14a50 <bt_get_name+0x4>)
    14a4e:	4770      	bx	lr
-   14a50:	000229f6 	.word	0x000229f6
+   14a50:	000229f9 	.word	0x000229f9
 
 00014a54 <id_find>:
 		*count = bt_dev.id_count;
@@ -37298,7 +37298,7 @@ static int id_create(uint8_t id, bt_addr_le_t *addr, uint8_t *irk)
    14b32:	4628      	mov	r0, r5
    14b34:	e7e1      	b.n	14afa <id_create.constprop.0+0x1e>
    14b36:	bf00      	nop
-   14b38:	0002245d 	.word	0x0002245d
+   14b38:	00022460 	.word	0x00022460
    14b3c:	20000370 	.word	0x20000370
 
 00014b40 <bt_id_create>:
@@ -37403,8 +37403,8 @@ int bt_id_create(bt_addr_le_t *addr, uint8_t *irk)
    14bd4:	f06f 000b 	mvn.w	r0, #11
    14bd8:	e7b9      	b.n	14b4e <bt_id_create+0xe>
    14bda:	bf00      	nop
-   14bdc:	0002245d 	.word	0x0002245d
-   14be0:	00022a11 	.word	0x00022a11
+   14bdc:	00022460 	.word	0x00022460
+   14be0:	00022a14 	.word	0x00022a14
    14be4:	0002153c 	.word	0x0002153c
    14be8:	20000370 	.word	0x20000370
 
@@ -37504,11 +37504,11 @@ uint8_t bt_id_read_public_addr(bt_addr_le_t *addr)
 	return 1U;
    14c68:	2001      	movs	r0, #1
    14c6a:	e7cd      	b.n	14c08 <bt_id_read_public_addr+0x1c>
-   14c6c:	00022a3f 	.word	0x00022a3f
+   14c6c:	00022a42 	.word	0x00022a42
    14c70:	0002153c 	.word	0x0002153c
-   14c74:	00022a58 	.word	0x00022a58
-   14c78:	0002246a 	.word	0x0002246a
-   14c7c:	00022464 	.word	0x00022464
+   14c74:	00022a5b 	.word	0x00022a5b
+   14c78:	0002246d 	.word	0x0002246d
+   14c7c:	00022467 	.word	0x00022467
 
 00014c80 <bt_setup_public_id_addr>:
 
@@ -37641,10 +37641,10 @@ uint8_t bt_read_static_addr(struct bt_hci_vs_static_addr addrs[], uint8_t size)
    14d30:	e7e4      	b.n	14cfc <bt_read_static_addr+0x5c>
    14d32:	bf00      	nop
    14d34:	20000370 	.word	0x20000370
-   14d38:	00022a76 	.word	0x00022a76
+   14d38:	00022a79 	.word	0x00022a79
    14d3c:	0002153c 	.word	0x0002153c
-   14d40:	00022aa2 	.word	0x00022aa2
-   14d44:	00022ac2 	.word	0x00022ac2
+   14d40:	00022aa5 	.word	0x00022aa5
+   14d44:	00022ac5 	.word	0x00022ac5
 
 00014d48 <bt_setup_random_id_addr>:
 #endif /* CONFIG_BT_HCI_VS_EXT */
@@ -37883,9 +37883,9 @@ int bt_id_init(void)
    14e40:	e7e5      	b.n	14e0e <bt_id_init+0x1a>
    14e42:	bf00      	nop
    14e44:	20000370 	.word	0x20000370
-   14e48:	00022aeb 	.word	0x00022aeb
+   14e48:	00022aee 	.word	0x00022aee
    14e4c:	0002153c 	.word	0x0002153c
-   14e50:	00022b0a 	.word	0x00022b0a
+   14e50:	00022b0d 	.word	0x00022b0d
 
 00014e54 <z_log_msg_runtime_create.constprop.0>:
 static inline void z_log_msg_runtime_create(uint8_t domain_id,
@@ -37910,7 +37910,7 @@ static inline void z_log_msg_runtime_create(uint8_t domain_id,
 }
    14e6e:	b007      	add	sp, #28
    14e70:	f85d fb04 	ldr.w	pc, [sp], #4
-   14e74:	00022b2d 	.word	0x00022b2d
+   14e74:	00022b30 	.word	0x00022b30
 
 00014e78 <atomic_get.constprop.0>:
    14e78:	4b03      	ldr	r3, [pc, #12]	; (14e88 <atomic_get.constprop.0+0x10>)
@@ -38521,11 +38521,11 @@ static inline uint8_t net_buf_pull_u8(struct net_buf *buf)
    1520c:	e74f      	b.n	150ae <bt_hci_le_adv_report+0x92>
    1520e:	bf00      	nop
    15210:	2000253c 	.word	0x2000253c
-   15214:	00022b2d 	.word	0x00022b2d
+   15214:	00022b30 	.word	0x00022b30
    15218:	0002154c 	.word	0x0002154c
-   1521c:	00022b46 	.word	0x00022b46
+   1521c:	00022b49 	.word	0x00022b49
    15220:	20002534 	.word	0x20002534
-   15224:	0002245d 	.word	0x0002245d
+   15224:	00022460 	.word	0x00022460
 
 00015228 <bt_le_scan_start>:
 
@@ -39030,7 +39030,7 @@ Z_GENLIST_FIND_AND_REMOVE(slist, snode)
    1555c:	2001      	movs	r0, #1
    1555e:	e7f0      	b.n	15542 <send_frag+0x12e>
    15560:	20000470 	.word	0x20000470
-   15564:	00022853 	.word	0x00022853
+   15564:	00022856 	.word	0x00022856
    15568:	00021524 	.word	0x00021524
 
 0001556c <bt_conn_get_pkts>:
@@ -39247,12 +39247,12 @@ static inline size_t net_buf_tailroom(struct net_buf *buf)
 }
    156e4:	b007      	add	sp, #28
    156e6:	bdf0      	pop	{r4, r5, r6, r7, pc}
-   156e8:	00022b53 	.word	0x00022b53
+   156e8:	00022b56 	.word	0x00022b56
    156ec:	00021524 	.word	0x00021524
-   156f0:	00022bd3 	.word	0x00022bd3
-   156f4:	00022b70 	.word	0x00022b70
-   156f8:	00022b8e 	.word	0x00022b8e
-   156fc:	00022bb5 	.word	0x00022bb5
+   156f0:	00022bd6 	.word	0x00022bd6
+   156f4:	00022b73 	.word	0x00022b73
+   156f8:	00022b91 	.word	0x00022b91
+   156fc:	00022bb8 	.word	0x00022bb8
 
 00015700 <bt_conn_send_cb>:
 {
@@ -39353,12 +39353,12 @@ static inline size_t net_buf_tailroom(struct net_buf *buf)
    157b2:	e7d9      	b.n	15768 <bt_conn_send_cb+0x68>
    157b4:	4614      	mov	r4, r2
    157b6:	e7f4      	b.n	157a2 <bt_conn_send_cb+0xa2>
-   157b8:	00022bee 	.word	0x00022bee
+   157b8:	00022bf1 	.word	0x00022bf1
    157bc:	00021524 	.word	0x00021524
    157c0:	20002410 	.word	0x20002410
    157c4:	200008dc 	.word	0x200008dc
-   157c8:	00022bfd 	.word	0x00022bfd
-   157cc:	00022c1b 	.word	0x00022c1b
+   157c8:	00022c00 	.word	0x00022c00
+   157cc:	00022c1e 	.word	0x00022c1e
 
 000157d0 <bt_conn_prepare_events>:
 {
@@ -39701,14 +39701,14 @@ Z_GENLIST_GET_NOT_EMPTY(slist, snode)
    15a48:	e716      	b.n	15878 <bt_conn_set_state+0x1c>
    15a4a:	bf00      	nop
    15a4c:	000217d0 	.word	0x000217d0
-   15a50:	00022c41 	.word	0x00022c41
-   15a54:	00022c4b 	.word	0x00022c4b
+   15a50:	00022c44 	.word	0x00022c44
+   15a54:	00022c4e 	.word	0x00022c4e
    15a58:	00021524 	.word	0x00021524
    15a5c:	20000470 	.word	0x20000470
    15a60:	2000066c 	.word	0x2000066c
-   15a64:	00022c5c 	.word	0x00022c5c
+   15a64:	00022c5f 	.word	0x00022c5f
    15a68:	20000370 	.word	0x20000370
-   15a6c:	00022c73 	.word	0x00022c73
+   15a6c:	00022c76 	.word	0x00022c76
 
 00015a70 <bt_conn_index>:
 		index = conn - acl_conns;
@@ -39757,7 +39757,7 @@ Z_GENLIST_GET_NOT_EMPTY(slist, snode)
 	return buf;
    15abe:	e7f7      	b.n	15ab0 <bt_conn_create_pdu_timeout+0x28>
    15ac0:	200008f4 	.word	0x200008f4
-   15ac4:	00022c8f 	.word	0x00022c8f
+   15ac4:	00022c92 	.word	0x00022c92
    15ac8:	00021524 	.word	0x00021524
 
 00015acc <notify_le_param_updated>:
@@ -40072,8 +40072,8 @@ struct bt_conn *bt_conn_lookup_addr_le(uint8_t id, const bt_addr_le_t *peer)
    15c76:	bd10      	pop	{r4, pc}
    15c78:	00021524 	.word	0x00021524
    15c7c:	000217d0 	.word	0x000217d0
-   15c80:	00022c41 	.word	0x00022c41
-   15c84:	00022cb8 	.word	0x00022cb8
+   15c80:	00022c44 	.word	0x00022c44
+   15c84:	00022cbb 	.word	0x00022cbb
 
 00015c88 <bt_conn_lookup_state_le>:
 
@@ -40481,7 +40481,7 @@ int bt_conn_le_create(const bt_addr_le_t *peer,
    15f40:	20002570 	.word	0x20002570
    15f44:	000214e8 	.word	0x000214e8
    15f48:	000214fc 	.word	0x000214fc
-   15f4c:	00022cdb 	.word	0x00022cdb
+   15f4c:	00022cde 	.word	0x00022cde
    15f50:	00021524 	.word	0x00021524
 
 00015f54 <bt_conn_create_frag_timeout>:
@@ -40675,9 +40675,9 @@ struct net_buf *bt_conn_create_frag_timeout(size_t reserve, k_timeout_t timeout)
 			conn_tx_destroy(conn, tx);
    16096:	f7ff b9a7 	b.w	153e8 <conn_tx_destroy>
    1609a:	bf00      	nop
-   1609c:	00022d00 	.word	0x00022d00
-   160a0:	0002328c 	.word	0x0002328c
-   160a4:	000225e1 	.word	0x000225e1
+   1609c:	00022d03 	.word	0x00022d03
+   160a0:	0002328f 	.word	0x0002328f
+   160a4:	000225e4 	.word	0x000225e4
    160a8:	20000370 	.word	0x20000370
 
 000160ac <bt_conn_init>:
@@ -40820,7 +40820,7 @@ static struct net_buf *l2cap_create_le_sig_pdu(struct net_buf *buf,
 	return buf;
    16160:	e7f4      	b.n	1614c <l2cap_create_le_sig_pdu.constprop.0+0x30>
    16162:	bf00      	nop
-   16164:	00022da9 	.word	0x00022da9
+   16164:	00022dac 	.word	0x00022dac
    16168:	00021544 	.word	0x00021544
 
 0001616c <l2cap_accept>:
@@ -40874,7 +40874,7 @@ static int l2cap_accept(struct bt_conn *conn, struct bt_l2cap_chan **chan)
    1619a:	e7f0      	b.n	1617e <l2cap_accept+0x12>
    1619c:	20002574 	.word	0x20002574
    161a0:	00021814 	.word	0x00021814
-   161a4:	00022dd1 	.word	0x00022dd1
+   161a4:	00022dd4 	.word	0x00022dd4
    161a8:	00021544 	.word	0x00021544
 
 000161ac <bt_l2cap_connected>:
@@ -41144,14 +41144,14 @@ static inline int bt_l2cap_send(struct bt_conn *conn, uint16_t cid,
    1636c:	f008 fbdb 	bl	1eb26 <bt_conn_le_conn_update>
    16370:	e78d      	b.n	1628e <l2cap_recv+0x46>
    16372:	bf00      	nop
-   16374:	00022df8 	.word	0x00022df8
-   16378:	00022e16 	.word	0x00022e16
+   16374:	00022dfb 	.word	0x00022dfb
+   16378:	00022e19 	.word	0x00022e19
    1637c:	00021544 	.word	0x00021544
-   16380:	00022e37 	.word	0x00022e37
-   16384:	00022ea5 	.word	0x00022ea5
-   16388:	00022e58 	.word	0x00022e58
-   1638c:	00022e74 	.word	0x00022e74
-   16390:	00022e97 	.word	0x00022e97
+   16380:	00022e3a 	.word	0x00022e3a
+   16384:	00022ea8 	.word	0x00022ea8
+   16388:	00022e5b 	.word	0x00022e5b
+   1638c:	00022e77 	.word	0x00022e77
+   16390:	00022e9a 	.word	0x00022e9a
 
 00016394 <bt_l2cap_recv>:
 {
@@ -41210,9 +41210,9 @@ static inline int bt_l2cap_send(struct bt_conn *conn, uint16_t cid,
    163f2:	4798      	blx	r3
    163f4:	e7df      	b.n	163b6 <bt_l2cap_recv+0x22>
    163f6:	bf00      	nop
-   163f8:	00022ecd 	.word	0x00022ecd
+   163f8:	00022ed0 	.word	0x00022ed0
    163fc:	00021544 	.word	0x00021544
-   16400:	00022eea 	.word	0x00022eea
+   16400:	00022eed 	.word	0x00022eed
 
 00016404 <bt_l2cap_update_conn_param>:
 {
@@ -41573,9 +41573,9 @@ static void bt_att_released(struct bt_l2cap_chan *ch)
    16654:	f008 f810 	bl	1e678 <memcmp>
    16658:	e7ee      	b.n	16638 <find_type_cb+0x128>
    1665a:	bf00      	nop
-   1665c:	00022f26 	.word	0x00022f26
+   1665c:	00022f29 	.word	0x00022f29
    16660:	0002151c 	.word	0x0002151c
-   16664:	00022f45 	.word	0x00022f45
+   16664:	00022f48 	.word	0x00022f48
 
 00016668 <chan_send>:
 {
@@ -41671,7 +41671,7 @@ static void bt_att_released(struct bt_l2cap_chan *ch)
    1670c:	f06f 0515 	mvn.w	r5, #21
    16710:	e7d2      	b.n	166b8 <chan_send+0x50>
    16712:	bf00      	nop
-   16714:	00022f64 	.word	0x00022f64
+   16714:	00022f67 	.word	0x00022f67
    16718:	0002151c 	.word	0x0002151c
    1671c:	0002183c 	.word	0x0002183c
    16720:	0001f279 	.word	0x0001f279
@@ -41715,9 +41715,9 @@ static void bt_att_released(struct bt_l2cap_chan *ch)
    16760:	f850 0c04 	ldr.w	r0, [r0, #-4]
    16764:	e7ed      	b.n	16742 <att_get+0x1e>
    16766:	bf00      	nop
-   16768:	00022e97 	.word	0x00022e97
+   16768:	00022e9a 	.word	0x00022e9a
    1676c:	0002151c 	.word	0x0002151c
-   16770:	00022f77 	.word	0x00022f77
+   16770:	00022f7a 	.word	0x00022f7a
 
 00016774 <bt_att_connected>:
 {
@@ -42095,11 +42095,11 @@ Z_GENLIST_PREPEND(slist, snode)
    169dc:	e7ab      	b.n	16936 <bt_att_accept+0x32>
    169de:	bf00      	nop
    169e0:	20000848 	.word	0x20000848
-   169e4:	00022f92 	.word	0x00022f92
+   169e4:	00022f95 	.word	0x00022f95
    169e8:	0002151c 	.word	0x0002151c
    169ec:	2000263c 	.word	0x2000263c
    169f0:	20000864 	.word	0x20000864
-   169f4:	00022fb7 	.word	0x00022fb7
+   169f4:	00022fba 	.word	0x00022fba
    169f8:	2000067c 	.word	0x2000067c
 
 000169fc <bt_att_chan_create_pdu>:
@@ -42193,11 +42193,11 @@ Z_GENLIST_PREPEND(slist, snode)
    16aa0:	7005      	strb	r5, [r0, #0]
 	return buf;
    16aa2:	e7bf      	b.n	16a24 <bt_att_chan_create_pdu+0x28>
-   16aa4:	00022fdc 	.word	0x00022fdc
+   16aa4:	00022fdf 	.word	0x00022fdf
    16aa8:	0002151c 	.word	0x0002151c
-   16aac:	00022da9 	.word	0x00022da9
+   16aac:	00022dac 	.word	0x00022dac
    16ab0:	200008c4 	.word	0x200008c4
-   16ab4:	00023001 	.word	0x00023001
+   16ab4:	00023004 	.word	0x00023004
 
 00016ab8 <bt_att_recv>:
 {
@@ -42347,13 +42347,13 @@ Z_GENLIST_PREPEND(slist, snode)
    16bca:	2900      	cmp	r1, #0
    16bcc:	d084      	beq.n	16ad8 <bt_att_recv+0x20>
    16bce:	e7ca      	b.n	16b66 <bt_att_recv+0xae>
-   16bd0:	00023020 	.word	0x00023020
+   16bd0:	00023023 	.word	0x00023023
    16bd4:	0002151c 	.word	0x0002151c
    16bd8:	00021854 	.word	0x00021854
-   16bdc:	00023055 	.word	0x00023055
-   16be0:	0002303b 	.word	0x0002303b
-   16be4:	00023071 	.word	0x00023071
-   16be8:	00023090 	.word	0x00023090
+   16bdc:	00023058 	.word	0x00023058
+   16be0:	0002303e 	.word	0x0002303e
+   16be4:	00023074 	.word	0x00023074
+   16be8:	00023093 	.word	0x00023093
 
 00016bec <att_write_rsp.constprop.0>:
 static uint8_t att_write_rsp(struct bt_att_chan *chan, uint8_t req, uint8_t rsp,
@@ -42539,7 +42539,7 @@ static uint8_t att_write_rsp(struct bt_att_chan *chan, uint8_t req, uint8_t rsp,
 		if (len + sizeof(op) > chan->chan.tx.mtu) {
    16d18:	4614      	mov	r4, r2
    16d1a:	e7db      	b.n	16cd4 <bt_att_create_pdu+0x20>
-   16d1c:	000230af 	.word	0x000230af
+   16d1c:	000230b2 	.word	0x000230b2
    16d20:	0002151c 	.word	0x0002151c
 
 00016d24 <att_read_group_req>:
@@ -43470,7 +43470,7 @@ void bt_att_req_free(struct bt_att_req *req)
    17342:	47c8      	blx	r9
    17344:	e7d8      	b.n	172f8 <att_handle_rsp+0x30>
    17346:	bf00      	nop
-   17348:	000230ca 	.word	0x000230ca
+   17348:	000230cd 	.word	0x000230cd
    1734c:	0002151c 	.word	0x0002151c
    17350:	20002640 	.word	0x20002640
 
@@ -43610,7 +43610,7 @@ Z_GENLIST_GET_NOT_EMPTY(slist, snode)
 	bt_att_disconnected(&chan->chan.chan);
    1743e:	f7ff bf89 	b.w	17354 <bt_att_disconnected>
    17442:	bf00      	nop
-   17444:	000230e1 	.word	0x000230e1
+   17444:	000230e4 	.word	0x000230e4
    17448:	0002151c 	.word	0x0002151c
 
 0001744c <find_cf_cfg>:
@@ -43651,7 +43651,7 @@ static struct gatt_cf_cfg *find_cf_cfg(struct bt_conn *conn)
    1746a:	2000      	movs	r0, #0
    1746c:	e7f6      	b.n	1745c <find_cf_cfg+0x10>
    1746e:	bf00      	nop
-   17470:	0002245d 	.word	0x0002245d
+   17470:	00022460 	.word	0x00022460
    17474:	20002669 	.word	0x20002669
    17478:	20002668 	.word	0x20002668
 
@@ -43719,7 +43719,7 @@ static struct bt_gatt_ccc_cfg *find_ccc_cfg(const struct bt_conn *conn,
    174b8:	f008 f8d1 	bl	1f65e <bt_addr_le_eq>
    174bc:	e7f5      	b.n	174aa <find_ccc_cfg+0xe>
    174be:	bf00      	nop
-   174c0:	0002245d 	.word	0x0002245d
+   174c0:	00022460 	.word	0x00022460
 
 000174c4 <bt_gatt_attr_write_ccc>:
 }
@@ -43860,9 +43860,9 @@ ssize_t bt_gatt_attr_write_ccc(struct bt_conn *conn,
    17578:	f06f 000c 	mvn.w	r0, #12
    1757c:	e7bc      	b.n	174f8 <bt_gatt_attr_write_ccc+0x34>
    1757e:	bf00      	nop
-   17580:	000230f4 	.word	0x000230f4
+   17580:	000230f7 	.word	0x000230f7
    17584:	0002152c 	.word	0x0002152c
-   17588:	0002245d 	.word	0x0002245d
+   17588:	00022460 	.word	0x00022460
 
 0001758c <clear_cf_cfg>:
 {
@@ -43890,7 +43890,7 @@ ssize_t bt_gatt_attr_write_ccc(struct bt_conn *conn,
 }
    175bc:	bd10      	pop	{r4, pc}
    175be:	bf00      	nop
-   175c0:	0002245d 	.word	0x0002245d
+   175c0:	00022460 	.word	0x00022460
 
 000175c4 <sc_save>:
 {
@@ -43946,8 +43946,8 @@ ssize_t bt_gatt_attr_write_ccc(struct bt_conn *conn,
    1761a:	d2eb      	bcs.n	175f4 <sc_save+0x30>
    1761c:	e7f7      	b.n	1760e <sc_save+0x4a>
    1761e:	bf00      	nop
-   17620:	0002245d 	.word	0x0002245d
-   17624:	0002310e 	.word	0x0002310e
+   17620:	00022460 	.word	0x00022460
+   17624:	00023111 	.word	0x00023111
    17628:	0002152c 	.word	0x0002152c
 
 0001762c <cf_write>:
@@ -44037,7 +44037,7 @@ ssize_t bt_gatt_attr_write_ccc(struct bt_conn *conn,
 		return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
    176c2:	f06f 0512 	mvn.w	r5, #18
    176c6:	e7d1      	b.n	1766c <cf_write+0x40>
-   176c8:	0002312d 	.word	0x0002312d
+   176c8:	00023130 	.word	0x00023130
    176cc:	0002152c 	.word	0x0002152c
 
 000176d0 <disconnected_cb>:
@@ -44154,7 +44154,7 @@ static uint8_t disconnected_cb(const struct bt_gatt_attr *attr, uint16_t handle,
    17762:	e7c0      	b.n	176e6 <disconnected_cb+0x16>
    17764:	000174c5 	.word	0x000174c5
    17768:	200006bc 	.word	0x200006bc
-   1776c:	0002245d 	.word	0x0002245d
+   1776c:	00022460 	.word	0x00022460
 
 00017770 <sc_indicate_rsp>:
 {
@@ -44521,11 +44521,11 @@ static inline void sys_mem_swap(void *buf, size_t length)
    17a0c:	f3bf 8f5b 	dmb	ish
    17a10:	e7d4      	b.n	179bc <db_hash_gen.constprop.0+0x2c>
    17a12:	bf00      	nop
-   17a14:	00023159 	.word	0x00023159
+   17a14:	0002315c 	.word	0x0002315c
    17a18:	0002152c 	.word	0x0002152c
    17a1c:	0001f5b9 	.word	0x0001f5b9
    17a20:	20001a98 	.word	0x20001a98
-   17a24:	00023172 	.word	0x00023172
+   17a24:	00023175 	.word	0x00023175
    17a28:	20001b50 	.word	0x20001b50
 
 00017a2c <db_hash_read>:
@@ -44743,11 +44743,11 @@ static inline void sys_mem_swap(void *buf, size_t length)
    17bb0:	4620      	mov	r0, r4
    17bb2:	f7ff fb71 	bl	17298 <bt_att_req_free>
    17bb6:	e7a4      	b.n	17b02 <gatt_indicate+0x2e>
-   17bb8:	0002318b 	.word	0x0002318b
+   17bb8:	0002318e 	.word	0x0002318e
    17bbc:	0002152c 	.word	0x0002152c
-   17bc0:	000231a1 	.word	0x000231a1
+   17bc0:	000231a4 	.word	0x000231a4
    17bc4:	0001f58b 	.word	0x0001f58b
-   17bc8:	000231cc 	.word	0x000231cc
+   17bc8:	000231cf 	.word	0x000231cf
 
 00017bcc <bt_gatt_indicate>:
 {
@@ -45062,13 +45062,13 @@ static inline void sys_mem_swap(void *buf, size_t length)
    17dec:	e7c1      	b.n	17d72 <update_ccc+0x4a>
    17dee:	bf00      	nop
    17df0:	000174c5 	.word	0x000174c5
-   17df4:	000231f3 	.word	0x000231f3
+   17df4:	000231f6 	.word	0x000231f6
    17df8:	0002152c 	.word	0x0002152c
    17dfc:	200006bc 	.word	0x200006bc
    17e00:	20002650 	.word	0x20002650
    17e04:	000218ec 	.word	0x000218ec
    17e08:	0001f6af 	.word	0x0001f6af
-   17e0c:	00023207 	.word	0x00023207
+   17e0c:	0002320a 	.word	0x0002320a
 
 00017e10 <gatt_notify>:
 {
@@ -45165,10 +45165,10 @@ static inline void sys_mem_swap(void *buf, size_t length)
 	return bt_att_send(conn, buf);
    17eca:	f007 bad0 	b.w	1f46e <bt_att_send>
    17ece:	bf00      	nop
-   17ed0:	0002318b 	.word	0x0002318b
+   17ed0:	0002318e 	.word	0x0002318e
    17ed4:	0002152c 	.word	0x0002152c
-   17ed8:	000231a1 	.word	0x000231a1
-   17edc:	00023224 	.word	0x00023224
+   17ed8:	000231a4 	.word	0x000231a4
+   17edc:	00023227 	.word	0x00023227
 
 00017ee0 <notify_cb>:
 {
@@ -45328,10 +45328,10 @@ static inline void sys_mem_swap(void *buf, size_t length)
    17fde:	e78f      	b.n	17f00 <notify_cb+0x20>
    17fe0:	000174c5 	.word	0x000174c5
    17fe4:	200006bc 	.word	0x200006bc
-   17fe8:	0002318b 	.word	0x0002318b
+   17fe8:	0002318e 	.word	0x0002318e
    17fec:	0002152c 	.word	0x0002152c
    17ff0:	20002943 	.word	0x20002943
-   17ff4:	0002245d 	.word	0x0002245d
+   17ff4:	00022460 	.word	0x00022460
 
 00017ff8 <bt_gatt_connected>:
 	}
@@ -45475,7 +45475,7 @@ static inline void z_log_msg_runtime_create(uint8_t domain_id,
 }
    180a2:	b007      	add	sp, #28
    180a4:	f85d fb04 	ldr.w	pc, [sp], #4
-   180a8:	0002325c 	.word	0x0002325c
+   180a8:	0002325f 	.word	0x0002325f
 
 000180ac <bt_smp_accept>:
 
@@ -45529,7 +45529,7 @@ static int bt_smp_accept(struct bt_conn *conn, struct bt_l2cap_chan **chan)
    180da:	e7f0      	b.n	180be <bt_smp_accept+0x12>
    180dc:	20002688 	.word	0x20002688
    180e0:	000219c8 	.word	0x000219c8
-   180e4:	0002325c 	.word	0x0002325c
+   180e4:	0002325f 	.word	0x0002325f
    180e8:	0002156c 	.word	0x0002156c
 
 000180ec <net_buf_pool_get>:
@@ -47077,7 +47077,7 @@ static inline int gpio_pin_configure_dt(const struct gpio_dt_spec *spec,
    1897c:	e7bb      	b.n	188f6 <spi_nrfx_init+0x32>
    1897e:	bf00      	nop
    18980:	000215dc 	.word	0x000215dc
-   18984:	000232d5 	.word	0x000232d5
+   18984:	000232d8 	.word	0x000232d8
 
 00018988 <transfer_next_chunk>:
 {
@@ -47286,7 +47286,7 @@ static inline size_t spi_context_max_continuous_chunk(struct spi_context *ctx)
 }
    18abc:	b004      	add	sp, #16
    18abe:	bd10      	pop	{r4, pc}
-   18ac0:	000232f9 	.word	0x000232f9
+   18ac0:	000232fc 	.word	0x000232fc
    18ac4:	000215dc 	.word	0x000215dc
 
 00018ac8 <spi_nrfx_transceive>:
@@ -47628,13 +47628,13 @@ static inline size_t spi_context_max_continuous_chunk(struct spi_context *ctx)
    18d5c:	6c25      	ldr	r5, [r4, #64]	; 0x40
 	return status;
    18d5e:	e6e5      	b.n	18b2c <spi_nrfx_transceive+0x64>
-   18d60:	00023317 	.word	0x00023317
+   18d60:	0002331a 	.word	0x0002331a
    18d64:	000215dc 	.word	0x000215dc
-   18d68:	00023331 	.word	0x00023331
-   18d6c:	00023353 	.word	0x00023353
-   18d70:	00023372 	.word	0x00023372
+   18d68:	00023334 	.word	0x00023334
+   18d6c:	00023356 	.word	0x00023356
+   18d70:	00023375 	.word	0x00023375
    18d74:	0001e847 	.word	0x0001e847
-   18d78:	000233a1 	.word	0x000233a1
+   18d78:	000233a4 	.word	0x000233a4
    18d7c:	0003d08f 	.word	0x0003d08f
    18d80:	0007a11f 	.word	0x0007a11f
    18d84:	000f423f 	.word	0x000f423f
@@ -47643,8 +47643,8 @@ static inline size_t spi_context_max_continuous_chunk(struct spi_context *ctx)
    18d90:	007a1200 	.word	0x007a1200
    18d94:	00018a09 	.word	0x00018a09
    18d98:	0bad0000 	.word	0x0bad0000
-   18d9c:	000233d2 	.word	0x000233d2
-   18da0:	000233f9 	.word	0x000233f9
+   18d9c:	000233d5 	.word	0x000233d5
+   18da0:	000233fc 	.word	0x000233fc
 
 00018da4 <z_impl_can_calc_timing>:
 	return sp_err_min == UINT16_MAX ? -ENOTSUP : (int)sp_err_min;
@@ -47913,7 +47913,7 @@ static int mcp2515_set_mode(const struct device *dev, can_mode_t mode)
 		return -EBUSY;
    18f4a:	f06f 000f 	mvn.w	r0, #15
    18f4e:	e7e8      	b.n	18f22 <mcp2515_set_mode+0x1a>
-   18f50:	00023444 	.word	0x00023444
+   18f50:	00023447 	.word	0x00023447
    18f54:	0002157c 	.word	0x0002157c
 
 00018f58 <mcp2515_get_state>:
@@ -48026,9 +48026,9 @@ static int mcp2515_get_state(const struct device *dev, enum can_state *state,
    18fe6:	706b      	strb	r3, [r5, #1]
    18fe8:	e7da      	b.n	18fa0 <mcp2515_get_state+0x48>
    18fea:	bf00      	nop
-   18fec:	0002345c 	.word	0x0002345c
+   18fec:	0002345f 	.word	0x0002345f
    18ff0:	0002157c 	.word	0x0002157c
-   18ff4:	0002347f 	.word	0x0002347f
+   18ff4:	00023482 	.word	0x00023482
 
 00018ff8 <mcp2515_send>:
 {
@@ -48231,10 +48231,10 @@ static int mcp2515_get_state(const struct device *dev, enum can_state *state,
    19174:	f06f 040a 	mvn.w	r4, #10
    19178:	e756      	b.n	19028 <mcp2515_send+0x30>
    1917a:	bf00      	nop
-   1917c:	000234a2 	.word	0x000234a2
+   1917c:	000234a5 	.word	0x000234a5
    19180:	0002157c 	.word	0x0002157c
-   19184:	000234c1 	.word	0x000234c1
-   19188:	000234e4 	.word	0x000234e4
+   19184:	000234c4 	.word	0x000234c4
+   19188:	000234e7 	.word	0x000234e7
 
 0001918c <mcp2515_int_thread>:
 		}
@@ -48428,10 +48428,10 @@ static inline int gpio_pin_get_dt(const struct gpio_dt_spec *spec)
    192f4:	421a      	tst	r2, r3
    192f6:	f47f af5b 	bne.w	191b0 <mcp2515_int_thread+0x24>
    192fa:	e74f      	b.n	1919c <mcp2515_int_thread+0x10>
-   192fc:	000234fe 	.word	0x000234fe
+   192fc:	00023501 	.word	0x00023501
    19300:	0002157c 	.word	0x0002157c
-   19304:	0002351d 	.word	0x0002351d
-   19308:	00023545 	.word	0x00023545
+   19304:	00023520 	.word	0x00023520
+   19308:	00023548 	.word	0x00023548
 
 0001930c <mcp2515_set_timing>:
 {
@@ -48576,10 +48576,10 @@ static inline int gpio_pin_get_dt(const struct gpio_dt_spec *spec)
 		return -EBUSY;
    193ee:	f06f 040f 	mvn.w	r4, #15
    193f2:	e7e0      	b.n	193b6 <mcp2515_set_timing+0xaa>
-   193f4:	0002355b 	.word	0x0002355b
+   193f4:	0002355e 	.word	0x0002355e
    193f8:	0002157c 	.word	0x0002157c
-   193fc:	00023582 	.word	0x00023582
-   19400:	000235a0 	.word	0x000235a0
+   193fc:	00023585 	.word	0x00023585
+   19400:	000235a3 	.word	0x000235a3
 
 00019404 <mcp2515_init>:
 	}
@@ -48923,16 +48923,16 @@ static inline int z_impl_can_set_mode(const struct device *dev, can_mode_t mode)
 	return ret;
    1962c:	e710      	b.n	19450 <mcp2515_init+0x4c>
    1962e:	bf00      	nop
-   19630:	000235be 	.word	0x000235be
+   19630:	000235c1 	.word	0x000235c1
    19634:	0002157c 	.word	0x0002157c
-   19638:	000235d8 	.word	0x000235d8
-   1963c:	000235ed 	.word	0x000235ed
-   19640:	000235ff 	.word	0x000235ff
-   19644:	0002361d 	.word	0x0002361d
+   19638:	000235db 	.word	0x000235db
+   1963c:	000235f0 	.word	0x000235f0
+   19640:	00023602 	.word	0x00023602
+   19644:	00023620 	.word	0x00023620
    19648:	0002026d 	.word	0x0002026d
    1964c:	0001918d 	.word	0x0001918d
-   19650:	00023640 	.word	0x00023640
-   19654:	00023662 	.word	0x00023662
+   19650:	00023643 	.word	0x00023643
+   19654:	00023665 	.word	0x00023665
 
 00019658 <mcp2515_set_mode_int>:
 {
@@ -48995,7 +48995,7 @@ static inline int z_impl_can_set_mode(const struct device *dev, can_mode_t mode)
    196c0:	f006 fdd8 	bl	20274 <mcp2515_cmd_read_reg.isra.0>
    196c4:	e7dc      	b.n	19680 <mcp2515_set_mode_int+0x28>
    196c6:	bf00      	nop
-   196c8:	00023674 	.word	0x00023674
+   196c8:	00023677 	.word	0x00023677
    196cc:	0002157c 	.word	0x0002157c
 
 000196d0 <mcp2515_stop>:
@@ -49095,9 +49095,9 @@ static inline int can_transceiver_disable(const struct device *dev)
 	return 0;
    19780:	4604      	mov	r4, r0
    19782:	e7d6      	b.n	19732 <mcp2515_stop+0x62>
-   19784:	000236a1 	.word	0x000236a1
+   19784:	000236a4 	.word	0x000236a4
    19788:	0002157c 	.word	0x0002157c
-   1978c:	000236c9 	.word	0x000236c9
+   1978c:	000236cc 	.word	0x000236cc
 
 00019790 <mcp2515_start>:
 {
@@ -49180,9 +49180,9 @@ static inline int can_transceiver_disable(const struct device *dev)
    19824:	f06f 0477 	mvn.w	r4, #119	; 0x77
    19828:	e7cf      	b.n	197ca <mcp2515_start+0x3a>
    1982a:	bf00      	nop
-   1982c:	000236f0 	.word	0x000236f0
+   1982c:	000236f3 	.word	0x000236f3
    19830:	0002157c 	.word	0x0002157c
-   19834:	00023716 	.word	0x00023716
+   19834:	00023719 	.word	0x00023719
 
 00019838 <random_byte_get>:
    19838:	f04f 0340 	mov.w	r3, #64	; 0x40
@@ -50361,7 +50361,7 @@ static inline void z_log_msg_runtime_create(uint8_t domain_id,
 }
    19fe6:	b007      	add	sp, #28
    19fe8:	f85d fb04 	ldr.w	pc, [sp], #4
-   19fec:	00023764 	.word	0x00023764
+   19fec:	00023767 	.word	0x00023767
 
 00019ff0 <k_sys_fatal_error_handler>:
 
@@ -50403,7 +50403,7 @@ void k_sys_fatal_error_handler(unsigned int reason,
 
 	CODE_UNREACHABLE;
    1a012:	bf00      	nop
-   1a014:	00023764 	.word	0x00023764
+   1a014:	00023767 	.word	0x00023767
    1a018:	00021594 	.word	0x00021594
 
 0001a01c <hci_driver_init>:
@@ -50536,7 +50536,7 @@ static int hci_driver_init(const struct device *unused)
    1a0d8:	00021b6c 	.word	0x00021b6c
    1a0dc:	0001a1c1 	.word	0x0001a1c1
    1a0e0:	02031b1b 	.word	0x02031b1b
-   1a0e4:	00023781 	.word	0x00023781
+   1a0e4:	00023784 	.word	0x00023784
    1a0e8:	00021564 	.word	0x00021564
 
 0001a0ec <hci_driver_open>:
@@ -50629,13 +50629,13 @@ static int hci_driver_init(const struct device *unused)
    1a192:	bf00      	nop
    1a194:	0002041b 	.word	0x0002041b
    1a198:	200027f4 	.word	0x200027f4
-   1a19c:	000237a3 	.word	0x000237a3
-   1a1a0:	00022591 	.word	0x00022591
+   1a19c:	000237a6 	.word	0x000237a6
+   1a1a0:	00022594 	.word	0x00022594
    1a1a4:	00021564 	.word	0x00021564
    1a1a8:	000212ac 	.word	0x000212ac
-   1a1ac:	000237ca 	.word	0x000237ca
+   1a1ac:	000237cd 	.word	0x000237cd
    1a1b0:	00021658 	.word	0x00021658
-   1a1b4:	000237ea 	.word	0x000237ea
+   1a1b4:	000237ed 	.word	0x000237ed
    1a1b8:	20001b78 	.word	0x20001b78
    1a1bc:	0001a21d 	.word	0x0001a21d
 
@@ -50660,7 +50660,7 @@ static int hci_driver_init(const struct device *unused)
 }
    1a1e6:	b007      	add	sp, #28
    1a1e8:	f85d fb04 	ldr.w	pc, [sp], #4
-   1a1ec:	0002380e 	.word	0x0002380e
+   1a1ec:	00023811 	.word	0x00023811
    1a1f0:	00021564 	.word	0x00021564
 
 0001a1f4 <rand_prio_low_vector_get>:
@@ -50853,10 +50853,10 @@ static inline int mpsl_work_submit(struct k_work *work)
    1a31c:	bd70      	pop	{r4, r5, r6, pc}
    1a31e:	bf00      	nop
    1a320:	200029f6 	.word	0x200029f6
-   1a324:	00023833 	.word	0x00023833
+   1a324:	00023836 	.word	0x00023836
    1a328:	00021564 	.word	0x00021564
-   1a32c:	0002384d 	.word	0x0002384d
-   1a330:	00023866 	.word	0x00023866
+   1a32c:	00023850 	.word	0x00023850
+   1a330:	00023869 	.word	0x00023869
 
 0001a334 <hci_internal_cmd_put>:
 		encode_command_complete_header(raw_event_out, opcode, return_param_length, status);
@@ -51870,8 +51870,8 @@ static struct net_buf *ecdh_p256_common_secret(bool use_debug)
    1ab10:	e7f8      	b.n	1ab04 <ecdh_p256_common_secret+0x78>
    1ab12:	bf00      	nop
    1ab14:	20002a83 	.word	0x20002a83
-   1ab18:	00023913 	.word	0x00023913
-   1ab1c:	000238d5 	.word	0x000238d5
+   1ab18:	00023916 	.word	0x00023916
+   1ab1c:	000238d8 	.word	0x000238d8
    1ab20:	0002155c 	.word	0x0002155c
    1ab24:	20002aa3 	.word	0x20002aa3
 
@@ -52024,9 +52024,9 @@ void ecdh_cmd_process(void)
    1ac2e:	bdf0      	pop	{r4, r5, r6, r7, pc}
    1ac30:	20002818 	.word	0x20002818
    1ac34:	20002a83 	.word	0x20002a83
-   1ac38:	00023913 	.word	0x00023913
+   1ac38:	00023916 	.word	0x00023916
    1ac3c:	20002aa3 	.word	0x20002aa3
-   1ac40:	000238f6 	.word	0x000238f6
+   1ac40:	000238f9 	.word	0x000238f9
    1ac44:	0002155c 	.word	0x0002155c
 
 0001ac48 <ecdh_thread>:
@@ -52116,7 +52116,7 @@ void hci_ecdh_init(void)
    1accc:	200021f0 	.word	0x200021f0
    1acd0:	20004140 	.word	0x20004140
    1acd4:	0001ac49 	.word	0x0001ac49
-   1acd8:	00023906 	.word	0x00023906
+   1acd8:	00023909 	.word	0x00023909
 
 0001acdc <hci_ecdh_uninit>:
 	z_impl_k_thread_abort(thread);
@@ -52316,7 +52316,7 @@ static inline void z_log_msg_runtime_create(uint8_t domain_id,
 }
    1adf6:	b007      	add	sp, #28
    1adf8:	f85d fb04 	ldr.w	pc, [sp], #4
-   1adfc:	0002393f 	.word	0x0002393f
+   1adfc:	00023942 	.word	0x00023942
 
 0001ae00 <m_assert_handler>:
 {
@@ -52339,7 +52339,7 @@ static inline void z_log_msg_runtime_create(uint8_t domain_id,
 }
    1ae26:	b007      	add	sp, #28
    1ae28:	f85d fb04 	ldr.w	pc, [sp], #4
-   1ae2c:	0002393f 	.word	0x0002393f
+   1ae2c:	00023942 	.word	0x00023942
    1ae30:	000215ac 	.word	0x000215ac
 
 0001ae34 <mpsl_low_prio_init>:
@@ -52384,7 +52384,7 @@ static int mpsl_low_prio_init(const struct device *dev)
    1ae6a:	bd30      	pop	{r4, r5, pc}
    1ae6c:	20002270 	.word	0x20002270
    1ae70:	20004540 	.word	0x20004540
-   1ae74:	00023953 	.word	0x00023953
+   1ae74:	00023956 	.word	0x00023956
    1ae78:	00020485 	.word	0x00020485
    1ae7c:	2000281c 	.word	0x2000281c
 
@@ -54383,11 +54383,11 @@ static void _DoInit(void) {
    1bae0:	bd10      	pop	{r4, pc}
    1bae2:	bf00      	nop
    1bae4:	20002858 	.word	0x20002858
-   1bae8:	0002397c 	.word	0x0002397c
-   1baec:	00023985 	.word	0x00023985
+   1bae8:	0002397f 	.word	0x0002397f
+   1baec:	00023988 	.word	0x00023988
    1baf0:	20002af3 	.word	0x20002af3
    1baf4:	20002ae3 	.word	0x20002ae3
-   1baf8:	00023989 	.word	0x00023989
+   1baf8:	0002398c 	.word	0x0002398c
 
 0001bafc <SEGGER_RTT_WriteSkipNoLock>:
 *    (2) For performance reasons this function does not call Init()
@@ -54731,12 +54731,12 @@ static ALWAYS_INLINE bool arch_is_in_nested_exception(const z_arch_esf_t *esf)
    1bcbe:	f7f7 b863 	b.w	12d88 <z_impl_k_thread_abort>
    1bcc2:	bf00      	nop
    1bcc4:	00021b88 	.word	0x00021b88
-   1bcc8:	00023990 	.word	0x00023990
+   1bcc8:	00023993 	.word	0x00023993
    1bccc:	000215c4 	.word	0x000215c4
-   1bcd0:	000239a6 	.word	0x000239a6
-   1bcd4:	000239ce 	.word	0x000239ce
-   1bcd8:	0002399e 	.word	0x0002399e
-   1bcdc:	000239ef 	.word	0x000239ef
+   1bcd0:	000239a9 	.word	0x000239a9
+   1bcd4:	000239d1 	.word	0x000239d1
+   1bcd8:	000239a1 	.word	0x000239a1
+   1bcdc:	000239f2 	.word	0x000239f2
 
 0001bce0 <z_sys_init_run_level>:
 		/* End marker */
@@ -55120,7 +55120,7 @@ static ALWAYS_INLINE void z_arm_clear_faults(void)
    1beac:	20002900 	.word	0x20002900
    1beb0:	0001bd25 	.word	0x0001bd25
    1beb4:	20002390 	.word	0x20002390
-   1beb8:	00023a51 	.word	0x00023a51
+   1beb8:	00023a54 	.word	0x00023a54
    1bebc:	20005340 	.word	0x20005340
 
 0001bec0 <statics_init>:
@@ -56047,7 +56047,7 @@ static int k_sys_work_q_init(const struct device *dev)
    1c3a2:	b004      	add	sp, #16
    1c3a4:	bd10      	pop	{r4, pc}
    1c3a6:	bf00      	nop
-   1c3a8:	00023a59 	.word	0x00023a59
+   1c3a8:	00023a5c 	.word	0x00023a5c
    1c3ac:	20005780 	.word	0x20005780
    1c3b0:	20002410 	.word	0x20002410
 
@@ -57806,9 +57806,9 @@ void z_data_copy(void)
    1ce20:	f003 bc8d 	b.w	2073e <z_early_memcpy>
    1ce24:	20000000 	.word	0x20000000
    1ce28:	200009fc 	.word	0x200009fc
-   1ce2c:	00023a90 	.word	0x00023a90
+   1ce2c:	00023a94 	.word	0x00023a94
    1ce30:	00000000 	.word	0x00000000
-   1ce34:	00023a90 	.word	0x00023a90
+   1ce34:	00023a94 	.word	0x00023a94
    1ce38:	20000000 	.word	0x20000000
 
 0001ce3c <elapsed>:
@@ -58477,7 +58477,7 @@ static inline bool size_add_overflow(size_t a, size_t b, size_t *result)
    1d204:	4801      	ldr	r0, [pc, #4]	; (1d20c <boot_banner+0x8>)
    1d206:	f000 bbd8 	b.w	1d9ba <printk>
    1d20a:	bf00      	nop
-   1d20c:	00023a62 	.word	0x00023a62
+   1d20c:	00023a65 	.word	0x00023a65
 
 0001d210 <ocrypto_ecdh_p256_public_key>:
    1d210:	b530      	push	{r4, r5, lr}

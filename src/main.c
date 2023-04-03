@@ -41,64 +41,48 @@ struct can_frame TTPMS_settings = {.flags = 0, .id = TTPMS_CAN_BASE_ID, .dlc = 1
 // This frame is sent out by TTPMS RX to indicate general data
 struct can_frame TTPMS_status = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
 
-// All temp values are signed 16 bit integer (0.01 scale, 0 offset)
+// All temp values are uint8_t with 0.5 scale and 0 offset
 // Each CAN frame can only hold 8 data bytes. Thus multiple are needed for each full sensor reading
 
-// Internal front left (16 pixels wide)
+// Internal front left (16 temp pixels + 24-bit pressure)
 struct can_frame IFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 2, .dlc = 8};
 struct can_frame IFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 3, .dlc = 8};
-struct can_frame IFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 4, .dlc = 8};
-struct can_frame IFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 5, .dlc = 8};
+struct can_frame FL_pressure = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 4, .dlc = 3};
+ 
+// Internal front right (16 temp pixels + 24-bit pressure)
+struct can_frame IFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 5, .dlc = 8};
+struct can_frame IFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 6, .dlc = 8};
+struct can_frame FR_pressure = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 7, .dlc = 3};
 
-// Internal front right (16 pixels wide)
-struct can_frame IFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 6, .dlc = 8};
-struct can_frame IFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 7, .dlc = 8};
-struct can_frame IFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 8, .dlc = 8};
-struct can_frame IFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 9, .dlc = 8};
+// Internal rear left (16 temp pixels + 24-bit pressure)
+struct can_frame IRL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 8, .dlc = 8};
+struct can_frame IRL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 9, .dlc = 8};
+struct can_frame RL_pressure = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 10, .dlc = 3};
 
-// Internal rear left (16 pixels wide)
-struct can_frame IRL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 10, .dlc = 8};
-struct can_frame IRL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 11, .dlc = 8};
-struct can_frame IRL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 12, .dlc = 8};
-struct can_frame IRL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 13, .dlc = 8};
+// Internal rear right (16 temp pixels + 24-bit pressure)
+struct can_frame IRR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 11, .dlc = 8};
+struct can_frame IRR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 12, .dlc = 8};
+struct can_frame RR_pressure = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 13, .dlc = 3};
 
-// Internal rear right (16 pixels wide)
-struct can_frame IRR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 14, .dlc = 8};
-struct can_frame IRR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 15, .dlc = 8};
-struct can_frame IRR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 16, .dlc = 8};
-struct can_frame IRR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 17, .dlc = 8};
+// External front left (32 temp pixels)
+struct can_frame EFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 14, .dlc = 8};
+struct can_frame EFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 15, .dlc = 8};
+struct can_frame EFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 16, .dlc = 8};
+struct can_frame EFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 17, .dlc = 8};
 
-// External front left (32 pixels wide)
-struct can_frame EFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 18, .dlc = 8};
-struct can_frame EFL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 19, .dlc = 8};
-struct can_frame EFL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 20, .dlc = 8};
-struct can_frame EFL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 21, .dlc = 8};
-struct can_frame EFL_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 22, .dlc = 8};
-struct can_frame EFL_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 8};
-struct can_frame EFL_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
-struct can_frame EFL_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
+// External front right (32 temp pixels)
+struct can_frame EFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 18, .dlc = 8};
+struct can_frame EFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 19, .dlc = 8};
+struct can_frame EFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 20, .dlc = 8};
+struct can_frame EFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 21, .dlc = 8};
 
-// External front right (32 pixels wide)
-struct can_frame EFR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 26, .dlc = 8};
-struct can_frame EFR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 27, .dlc = 8};
-struct can_frame EFR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 28, .dlc = 8};
-struct can_frame EFR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 29, .dlc = 8};
-struct can_frame EFR_temp_5 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 30, .dlc = 8};
-struct can_frame EFR_temp_6 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 31, .dlc = 8};
-struct can_frame EFR_temp_7 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 32, .dlc = 8};
-struct can_frame EFR_temp_8 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 33, .dlc = 8};
+// External rear left (16 temp pixels)
+struct can_frame ERL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 22, .dlc = 8};
+struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 8};
 
-// External rear left (16 pixels wide)
-struct can_frame ERL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 34, .dlc = 8};
-struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 35, .dlc = 8};
-struct can_frame ERL_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 36, .dlc = 8};
-struct can_frame ERL_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 37, .dlc = 8};
-
-// External rear right (16 pixels wide)
-struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 38, .dlc = 8};
-struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 39, .dlc = 8};
-struct can_frame ERR_temp_3 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 40, .dlc = 8};
-struct can_frame ERR_temp_4 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 41, .dlc = 8};
+// External rear right (16 temp pixels)
+struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
+struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
 
 /* END CAN FRAMES*/
 
