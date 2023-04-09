@@ -17,9 +17,9 @@
 /* includes for debugging/temporary */
 #include <zephyr/logging/log.h>
 
-/* boilerplate defines, etc */
-#define CANBUS_NODE DT_CHOSEN(zephyr_canbus)
 LOG_MODULE_REGISTER(ttpms);
+
+#define CANBUS_NODE DT_CHOSEN(zephyr_canbus)
 
 const struct device *can_dev = DEVICE_DT_GET(CANBUS_NODE);
 
@@ -87,7 +87,16 @@ struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 
 /* END CAN FRAMES*/
 
 // First hex char must be C for random static address
-#define TTPMS_RX_BT_ID "CA:BC:DE:F1:23:69"		// for this device
+#define TTPMS_RX_BT_ID "CA:69:F1:F1:69:69"		// for this device
+#define TTPMS_IFL_BT_ID "CA:69:F1:F1:33:42"		// Internal Front Left BT ID
+#define TTPMS_IFR_BT_ID "CA:69:F1:F1:33:43"		// Internal Front Right BT ID
+#define TTPMS_IRL_BT_ID "CA:69:F1:F1:33:44"		// Internal Rear Left BT ID
+#define TTPMS_IRR_BT_ID "CA:69:F1:F1:33:45"		// Internal Rear Right BT ID
+#define TTPMS_EFL_BT_ID "CA:69:F1:F1:11:22"		// External Front Left BT ID
+#define TTPMS_EFR_BT_ID "CA:69:F1:F1:11:23"		// External Front Right BT ID
+#define TTPMS_ERL_BT_ID "CA:69:F1:F1:11:24"		// External Rear Left BT ID
+#define TTPMS_ERR_BT_ID "CA:69:F1:F1:11:25"		// External Rear Right BT ID
+
 #define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle (for testing, may change randomly?)
 
 static struct bt_conn *default_conn;
@@ -95,8 +104,8 @@ static struct bt_conn *default_conn;
 /* --- BLE FUNCTIONS START --- */
 
 // start_scan and device_found reference each other, so one must be declared first
-
 static void start_scan(void);
+
 static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
 			 struct net_buf_simple *ad)
 {
