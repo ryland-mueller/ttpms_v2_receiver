@@ -42,7 +42,7 @@ struct can_frame TTPMS_settings = {.flags = 0, .id = TTPMS_CAN_BASE_ID, .dlc = 1
 struct can_frame TTPMS_status = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
 
 // All temp values are uint8_t with 0.5 scale and 0 offset
-// Each CAN frame can only hold 8 data bytes. Thus multiple are needed for each full sensor reading
+// Each CAN frame can only hold 8 data bytes. Thus multiple frames are needed for each full sensor reading
 
 // Internal front left (16 temp pixels + 24-bit pressure)
 struct can_frame IFL_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 2, .dlc = 8};
@@ -99,7 +99,34 @@ struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 
 
 #define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle (for testing, may change randomly?)
 
-static struct bt_conn *default_conn;
+#define INIT_INTERVAL	16	/* 10 ms */
+#define INIT_WINDOW		16	/* 10 ms */
+#define CONN_INTERVAL	8	/* 10 ms */
+#define CONN_LATENCY	0
+#define CONN_TIMEOUT	MIN(MAX((CONN_INTERVAL * 125 * \
+			       		MAX(CONFIG_BT_MAX_CONN, 6) / 1000), 10), 3200)
+
+static bt_addr_le_t IFL_bt_addr;
+static bt_addr_le_t IFR_bt_addr;
+static bt_addr_le_t IRL_bt_addr;
+static bt_addr_le_t IRR_bt_addr;
+static bt_addr_le_t EFL_bt_addr;
+static bt_addr_le_t EFR_bt_addr;
+static bt_addr_le_t ERL_bt_addr;
+static bt_addr_le_t ERR_bt_addr;
+
+static bt_addr_le_t TEST_bt_addr;
+
+static struct bt_conn *IFL_conn;
+static struct bt_conn *IFR_conn;
+static struct bt_conn *IRL_conn;
+static struct bt_conn *IRR_conn;
+static struct bt_conn *EFL_conn;
+static struct bt_conn *EFR_conn;
+static struct bt_conn *ERL_conn;
+static struct bt_conn *ERR_conn;
+
+static struct bt_conn *TEST_conn;
 
 /* --- BLE FUNCTIONS START --- */
 
@@ -111,44 +138,84 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
 {
 	int err;
 
+	struct bt_conn *conn_ptr;
+
 	char addr_str[BT_ADDR_LE_STR_LEN];
 
-	if (default_conn) {
-		return;
-	}
+	// this is just for printing to log
+	//bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
 
-	/* We're only interested in connectable events */
-	if (type != BT_GAP_ADV_TYPE_ADV_IND &&
-	    type != BT_GAP_ADV_TYPE_ADV_DIRECT_IND) {
-		return;
-	}
-
-	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
-
-	//each TTPMS device role (IFL sensor, ERR sensor, receiver, etc) has it's own BT ID. See how this ID is set up in main
-	if (strncmp(addr_str, TTPMS_TEST_BT_ID, 17) == 0) {
-		LOG_INF("Found TTPMS Test Sensor, RSSI: %d", rssi);
+	if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
+		conn_ptr = &IFL_conn;
+	} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
+		conn_ptr = &IFR_conn;
+	} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
+		conn_ptr = &IRL_conn;
+	} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
+		conn_ptr = &IRR_conn;
+	} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
+		conn_ptr = &EFL_conn;
+	} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
+		conn_ptr = &EFR_conn;
+	} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
+		conn_ptr = &ERL_conn;
+	} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
+		conn_ptr = &ERR_conn;
+	} else if (bt_addr_le_eq(addr, &TEST_bt_addr)) {
+		conn_ptr = &TEST_conn;
 	} else {
 		return;
 	}
 
-	if (bt_le_scan_stop()) {
+	if (bt_le_scan_stop()) {	// must stop scanning before connecting
 		return;
 	}
 
-	err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN, BT_LE_CONN_PARAM_DEFAULT, &default_conn);
+
+	struct bt_le_conn_param conn_param = {
+		.interval_min = CONN_INTERVAL,
+		.interval_max = CONN_INTERVAL,
+		.latency = CONN_LATENCY,
+		.timeout = CONN_TIMEOUT,
+	};
+
+	err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN, &conn_param, conn_ptr);
 	if (err) {
 		LOG_WRN("Create conn failed (%u)\n", err);
 		start_scan();
 	}
+
 }
 
 static void start_scan(void)
 {
 	int err;
 
-	/* We don't require active scan */
-	err = bt_le_scan_start(BT_LE_SCAN_PASSIVE, device_found);
+	// Add address of the devices we want to filter accept list (these address variables were filled in main)
+	err = bt_le_filter_accept_list_add(&IFL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&IFR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&IRL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&IRR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&EFL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&EFR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&ERL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+	err = bt_le_filter_accept_list_add(&ERR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+
+	err = bt_le_filter_accept_list_add(&TEST_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
+
+	err = bt_le_scan_start(BT_LE_SCAN_PARAM(BT_LE_SCAN_TYPE_PASSIVE, \
+					    BT_LE_SCAN_OPT_FILTER_ACCEPT_LIST, \
+					    BT_GAP_SCAN_FAST_INTERVAL, \
+					    BT_GAP_SCAN_FAST_WINDOW), device_found);
 	if (err) {
 		LOG_WRN("Scanning failed to start (err %d)\n", err);
 		return;
@@ -210,7 +277,7 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 
 /* --- CAN FUNCTIONS START --- */
 
-// CAN TX callback function (necessary for non-blocking TX)
+// CAN TX callback function (necessary for non-blocking TX, why??? also, is blocking fine since it's in workqueue?)
 void tx_irq_callback(const struct device *dev, int error, void *arg)
 {
 	char *sender = (char *)arg;
@@ -226,14 +293,13 @@ void tx_irq_callback(const struct device *dev, int error, void *arg)
 /* --- CAN FUNCTIONS END --- */
 
 
-/* --- WORK AND TIMER FUNCTIONS START --- */
+/* --- WORK FUNCTIONS START --- */
 
 // submitting to system work queue is necessary so that this isn't blocking
 // (SPI was crashing without this)
-void ins_temp_request_work_handler(struct k_work *work)
+void CAN_transmit_work_handler(struct k_work *work)
 {
-	// the actual code to go here will be requesting an update from the TTPMS internal sensor temp characteristics
-	// in interrupt upon receiving the data from sensor will trigger another work handler doing the below
+	// this will be triggered by BLE notifications
 	test_frame.data[0] = 0x69;
 	test_frame.data[1] = 0x42;
 	test_frame.data[2] = 0x11;
@@ -245,16 +311,10 @@ void ins_temp_request_work_handler(struct k_work *work)
 	can_send(can_dev, &test_frame, K_FOREVER, tx_irq_callback, "Test message");
 }
 
-K_WORK_DEFINE(ins_temp_request_work, ins_temp_request_work_handler);
+K_WORK_DEFINE(CAN_transmit_work, CAN_transmit_work_handler);
 
-void ins_temp_request_timer_handler(struct k_timer *dummy)
-{
-	k_work_submit(&ins_temp_request_work);
-}
 
-K_TIMER_DEFINE(ins_temp_request_timer, ins_temp_request_timer_handler, NULL);
-
-/* --- WORK AND TIMER FUNCTIONS END --- */
+/* --- WORK FUNCTIONS END --- */
 
 
 void main(void)
@@ -274,20 +334,42 @@ void main(void)
 		return;
 	}
 
-	k_timer_start(&ins_temp_request_timer, K_MSEC(100), K_MSEC(10));	// wait 100ms then execute every 10ms
 	*/
 
 	bt_addr_le_t addr;
 
+	// create self BT address
 	err = bt_addr_le_from_str(TTPMS_RX_BT_ID, "random", &addr);
 	if (err) {
 		LOG_WRN("Invalid BT address (err %d)\n", err);
 	}
 
+	// assign self BT address
 	err = bt_id_create(&addr, NULL);
 	if (err < 0) {
 		LOG_WRN("Creating new BT ID failed (err %d)\n", err);
 	}
+
+	// fill address variables for the devices we want to filter for
+	err = bt_addr_le_from_str(TTPMS_IFL_BT_ID, "random", &IFL_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_IFR_BT_ID, "random", &IFR_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_IRL_BT_ID, "random", &IRL_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_IRR_BT_ID, "random", &IRR_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_EFL_BT_ID, "random", &EFL_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_EFR_BT_ID, "random", &EFR_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_ERL_BT_ID, "random", &ERL_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	err = bt_addr_le_from_str(TTPMS_ERR_BT_ID, "random", &ERR_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+
+	err = bt_addr_le_from_str(TTPMS_TEST_BT_ID, "random", &TEST_bt_addr);
+	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
 
 	err = bt_enable(NULL);
 	if (err) {
