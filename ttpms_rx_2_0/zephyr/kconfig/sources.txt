@@ -1,6 +1,6 @@
-C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\boards\arm\ttpms_rx_2_0\Kconfig
-C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\boards\arm\ttpms_rx_2_0\Kconfig.board
-C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\boards\arm\ttpms_rx_2_0\Kconfig.defconfig
+C:\Users\Ryland\Documents\NCS_Projects\boards\arm\ttpms_rx_2_0\Kconfig
+C:\Users\Ryland\Documents\NCS_Projects\boards\arm\ttpms_rx_2_0\Kconfig.board
+C:\Users\Ryland\Documents\NCS_Projects\boards\arm\ttpms_rx_2_0\Kconfig.defconfig
 C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\ttpms_rx_2_0\Kconfig\Kconfig.dts
 C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\ttpms_rx_2_0\Kconfig\Kconfig.modules
 C:\Users\Ryland\Documents\NCS_Projects\ttpms_v2_receiver\ttpms_rx_2_0\Kconfig\Kconfig.shield

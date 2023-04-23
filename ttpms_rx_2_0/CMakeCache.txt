@@ -24,10 +24,10 @@ APPLICATION_SOURCE_DIR:PATH=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_rece
 BOARD:STRING=ttpms_rx_2_0
 
 //Path to a file.
-BOARD_DIR:PATH=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0
+BOARD_DIR:PATH=C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0
 
 //No help, variable specified on the command line.
-BOARD_ROOT:STRING=c:/Users/Ryland/Documents/NCS_Projects;c:/Users/Ryland/Documents/NCS_Projects/testing_random;c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver
+BOARD_ROOT:STRING=c:/Users/Ryland/Documents/NCS_Projects
 
 //Path to a program.
 BOSSAC:FILEPATH=BOSSAC-NOTFOUND
@@ -42,7 +42,7 @@ CACHED_BOARD:STRING=ttpms_rx_2_0
 // listed, e.g. CONF_FILE="prj1.conf;prj2.conf" The CACHED_CONF_FILE
 // is internal Zephyr variable used between CMake runs. To change
 // CONF_FILE, use the CONF_FILE variable.
-CACHED_CONF_FILE:STRING=c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/prj.conf
+CACHED_CONF_FILE:STRING=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/prj.conf
 
 //Selected shield
 CACHED_SHIELD:STRING=
@@ -495,7 +495,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=121
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=143
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

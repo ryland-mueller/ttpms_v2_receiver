@@ -1,5 +1,5 @@
 empty_file.o: C:/ncs/v2.3.0/zephyr/misc/empty_file.c \
- C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts \
+ C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts \
  C:/ncs/v2.3.0/zephyr/dts/arm/nordic/nrf52833_qiaa.dtsi \
  C:/ncs/v2.3.0/zephyr/dts/common/mem.h \
  C:/ncs/v2.3.0/zephyr/dts/arm/nordic/nrf52833.dtsi \
@@ -18,4 +18,4 @@ empty_file.o: C:/ncs/v2.3.0/zephyr/misc/empty_file.c \
  C:/ncs/v2.3.0/zephyr/include/zephyr/dt-bindings/pwm/pwm.h \
  C:/ncs/v2.3.0/zephyr/dts/common/freq.h \
  C:/ncs/v2.3.0/zephyr/dts/arm/nordic/override.dtsi \
- C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0-pinctrl.dtsi
+ C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0-pinctrl.dtsi

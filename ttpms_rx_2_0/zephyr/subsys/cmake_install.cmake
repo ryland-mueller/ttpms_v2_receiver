@@ -49,6 +49,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/subsys/bluetooth/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/subsys/fs/cmake_install.cmake")
 endif()
 
@@ -60,6 +65,11 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/subsys/mgmt/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/subsys/net/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

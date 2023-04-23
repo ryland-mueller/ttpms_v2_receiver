@@ -1,7 +1,7 @@
 # 0 "C:/ncs/v2.3.0/zephyr/misc/empty_file.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 1
+# 1 "C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 1
 
 
 
@@ -644,8 +644,8 @@
   compatible = "nordic,nRF52833-QIAA", "nordic,nRF52833", "nordic,nRF52", "simple-bus";
  };
 };
-# 6 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 2
-# 1 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0-pinctrl.dtsi" 1
+# 6 "C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 2
+# 1 "C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0-pinctrl.dtsi" 1
 &pinctrl {
 
  spi0_default: spi0_default {
@@ -666,7 +666,7 @@
  };
 
 };
-# 7 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 2
+# 7 "C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0/ttpms_rx_2_0.dts" 2
 
 / {
  model = "TTPMS Receiver V2";

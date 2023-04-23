@@ -1024,8 +1024,8 @@ zephyr_udc0: &usbd {
  status = "okay";
 };
 # 0 "<command-line>" 2
-# 1 "c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay" 1
-# 19 "c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay"
+# 1 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay" 1
+# 19 "C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay"
 &uart0 {
     status = "disabled";
 };

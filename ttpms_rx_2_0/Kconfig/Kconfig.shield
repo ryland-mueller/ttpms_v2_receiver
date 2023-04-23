@@ -1,4 +1,2 @@
 osource "c:/Users/Ryland/Documents/NCS_Projects/boards/shields/*/Kconfig.shield"
-osource "c:/Users/Ryland/Documents/NCS_Projects/testing_random/boards/shields/*/Kconfig.shield"
-osource "c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/shields/*/Kconfig.shield"
 osource "C:/ncs/v2.3.0/nrf/boards/shields/*/Kconfig.shield"

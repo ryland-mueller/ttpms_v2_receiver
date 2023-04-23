@@ -12,7 +12,7 @@ debug-runner: jlink
 
 # Common runner configuration values.
 config:
-  board_dir: C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/boards/arm/ttpms_rx_2_0
+  board_dir: C:/Users/Ryland/Documents/NCS_Projects/boards/arm/ttpms_rx_2_0
   # Build outputs:
   elf_file: zephyr.elf
   hex_file: zephyr.hex

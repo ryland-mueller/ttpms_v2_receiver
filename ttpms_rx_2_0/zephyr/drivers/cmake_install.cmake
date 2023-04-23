@@ -79,6 +79,21 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/spi/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/can/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/entropy/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/timer/cmake_install.cmake")
 endif()
 

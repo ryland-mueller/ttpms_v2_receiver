@@ -25,10 +25,10 @@
 #define ___thread_base_t_swap_data_OFFSET 0x14
 #define ___thread_t_base_OFFSET 0x0
 #define ___thread_t_callee_saved_OFFSET 0x30
-#define ___thread_t_arch_OFFSET 0x74
+#define ___thread_t_arch_OFFSET 0x78
 #define ___thread_stack_info_t_start_OFFSET 0x0
 #define ___thread_stack_info_t_size_OFFSET 0x4
-#define ___thread_t_stack_info_OFFSET 0x64
+#define ___thread_t_stack_info_OFFSET 0x68
 #define K_THREAD_SIZEOF 0x80
 #define __z_interrupt_stack_SIZEOF 0x840
 #define _DEVICE_STRUCT_SIZEOF 0x18

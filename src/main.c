@@ -117,112 +117,16 @@ static bt_addr_le_t ERR_bt_addr;
 
 static bt_addr_le_t TEST_bt_addr;
 
-static struct bt_conn *IFL_conn;
-static struct bt_conn *IFR_conn;
-static struct bt_conn *IRL_conn;
-static struct bt_conn *IRR_conn;
-static struct bt_conn *EFL_conn;
-static struct bt_conn *EFR_conn;
-static struct bt_conn *ERL_conn;
-static struct bt_conn *ERR_conn;
+static struct bt_conn *default_conn;
 
-static struct bt_conn *TEST_conn;
-
-/* --- BLE FUNCTIONS START --- */
-
-// start_scan and device_found reference each other, so one must be declared first
-static void start_scan(void);
-
-static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
-			 struct net_buf_simple *ad)
-{
-	int err;
-
-	struct bt_conn *conn_ptr;
-
-	char addr_str[BT_ADDR_LE_STR_LEN];
-
-	// this is just for printing to log
-	//bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
-
-	if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
-		conn_ptr = &IFL_conn;
-	} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
-		conn_ptr = &IFR_conn;
-	} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
-		conn_ptr = &IRL_conn;
-	} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
-		conn_ptr = &IRR_conn;
-	} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
-		conn_ptr = &EFL_conn;
-	} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
-		conn_ptr = &EFR_conn;
-	} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
-		conn_ptr = &ERL_conn;
-	} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
-		conn_ptr = &ERR_conn;
-	} else if (bt_addr_le_eq(addr, &TEST_bt_addr)) {
-		conn_ptr = &TEST_conn;
-	} else {
-		return;
-	}
-
-	if (bt_le_scan_stop()) {	// must stop scanning before connecting
-		return;
-	}
-
-
-	struct bt_le_conn_param conn_param = {
+struct bt_le_conn_param conn_param = {
 		.interval_min = CONN_INTERVAL,
 		.interval_max = CONN_INTERVAL,
 		.latency = CONN_LATENCY,
 		.timeout = CONN_TIMEOUT,
 	};
 
-	err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN, &conn_param, conn_ptr);
-	if (err) {
-		LOG_WRN("Create conn failed (%u)\n", err);
-		start_scan();
-	}
-
-}
-
-static void start_scan(void)
-{
-	int err;
-
-	// Add address of the devices we want to filter accept list (these address variables were filled in main)
-	err = bt_le_filter_accept_list_add(&IFL_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&IFR_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&IRL_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&IRR_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&EFL_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&EFR_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&ERL_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-	err = bt_le_filter_accept_list_add(&ERR_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-
-	err = bt_le_filter_accept_list_add(&TEST_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)\n", err); }
-
-	err = bt_le_scan_start(BT_LE_SCAN_PARAM(BT_LE_SCAN_TYPE_PASSIVE, \
-					    BT_LE_SCAN_OPT_FILTER_ACCEPT_LIST, \
-					    BT_GAP_SCAN_FAST_INTERVAL, \
-					    BT_GAP_SCAN_FAST_WINDOW), device_found);
-	if (err) {
-		LOG_WRN("Scanning failed to start (err %d)\n", err);
-		return;
-	}
-
-	LOG_INF("Scanning successfully started\n");
-}
+/* --- BLE FUNCTIONS START --- */
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
@@ -232,39 +136,38 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 	if (err) {
 		LOG_WRN("Failed to connect to %s (%u)\n", addr, err);
-
 		bt_conn_unref(default_conn);
 		default_conn = NULL;
-
-		start_scan();
-		return;
+	} else {
+		LOG_INF("Connected: %s\n", addr);
 	}
 
-	if (conn != default_conn) {
-		return;
+	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
+	if (err) {
+		LOG_ERR("Failed to start automatically connecting (err %d)");
 	}
 
-	LOG_INF("Connected: %s\n", addr);
-
-	//bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
 
-	if (conn != default_conn) {
-		return;
-	}
+	int err;
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	LOG_INF("Disconnected: %s (reason 0x%02x)\n", addr, reason);
 
+	// i dont understand this conn "ref" business
+	//https://docs.zephyrproject.org/latest/connectivity/bluetooth/api/connection_mgmt.html
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	start_scan();
+	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
+	if (err) {
+		LOG_ERR("Failed to start automatically connecting (err %d)");
+	}
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
@@ -350,6 +253,13 @@ void main(void)
 		LOG_WRN("Creating new BT ID failed (err %d)\n", err);
 	}
 
+	err = bt_enable(NULL);
+	if (err) {
+		LOG_WRN("Bluetooth init failed (err %d)\n", err);
+	} else {
+		LOG_INF("Bluetooth initialized\n");
+	}
+
 	// fill address variables for the devices we want to filter for
 	err = bt_addr_le_from_str(TTPMS_IFL_BT_ID, "random", &IFL_bt_addr);
 	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
@@ -371,12 +281,29 @@ void main(void)
 	err = bt_addr_le_from_str(TTPMS_TEST_BT_ID, "random", &TEST_bt_addr);
 	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
 
-	err = bt_enable(NULL);
-	if (err) {
-		LOG_WRN("Bluetooth init failed (err %d)\n", err);
-	} else {
-		LOG_INF("Bluetooth initialized\n");
-	}
+	// Add address of the devices we want to filter accept list (these address variables were filled in main)
+	err = bt_le_filter_accept_list_add(&IFL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&IFR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&IRL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&IRR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&EFL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&EFR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&ERL_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+	err = bt_le_filter_accept_list_add(&ERR_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
 
-	start_scan();
+	err = bt_le_filter_accept_list_add(&TEST_bt_addr);
+	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
+	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
+	if (err) {
+		LOG_ERR("Failed to start automatically connecting (err %d)");
+	}
 }
