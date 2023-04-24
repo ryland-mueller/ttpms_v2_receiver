@@ -19,4 +19,4 @@ empty_file.o: C:/ncs/v2.3.0/zephyr/misc/empty_file.c \
  C:/ncs/v2.3.0/zephyr/dts/common/freq.h \
  C:/ncs/v2.3.0/zephyr/dts/arm/nordic/override.dtsi \
  C:/ncs/v2.3.0/zephyr/boards/arm/nrf52833dk_nrf52833/nrf52833dk_nrf52833-pinctrl.dtsi \
- C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay
+ c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay

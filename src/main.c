@@ -19,15 +19,33 @@
 
 LOG_MODULE_REGISTER(ttpms);
 
+
+// use atomic set, clear, test functions
+atomic_t flags;
+#define IFL_CONNECTED_FLAG		0
+#define IFR_CONNECTED_FLAG		1
+#define IRL_CONNECTED_FLAG		2
+#define IRR_CONNECTED_FLAG		3
+#define EFL_CONNECTED_FLAG		4
+#define EFR_CONNECTED_FLAG		5
+#define ERL_CONNECTED_FLAG		6
+#define ERR_CONNECTED_FLAG		7
+#define TEMP_ENABLED_FLAG		8
+#define PRESSURE_ENABLED_FLAG	9
+#define IFL_SUBSCRIBED_FLAG		10
+#define IFR_SUBSCRIBED_FLAG		11
+#define IRL_SUBSCRIBED_FLAG		12
+#define IRR_SUBSCRIBED_FLAG		13
+#define EFL_SUBSCRIBED_FLAG		14
+#define EFR_SUBSCRIBED_FLAG		15
+#define ERL_SUBSCRIBED_FLAG		16
+#define ERR_SUBSCRIBED_FLAG		17
+
+
 #define CANBUS_NODE DT_CHOSEN(zephyr_canbus)
 
 const struct device *can_dev = DEVICE_DT_GET(CANBUS_NODE);
 
-struct can_frame test_frame = {
-		.flags = 0,
-		.id = 0x100,
-		.dlc = 8
-};
 
 // Standard 11-bit CAN IDs can be up to 2047 (0x7FF). Lower = higher priority
 #define TTPMS_CAN_BASE_ID 0x400
@@ -36,7 +54,7 @@ struct can_frame test_frame = {
 // Ensure this is always up to date with CAN .dbc file to be kept in version control by the team
 
 // This frame is sent by dash or other controller to enable & configure TTPMS
-struct can_frame TTPMS_settings = {.flags = 0, .id = TTPMS_CAN_BASE_ID, .dlc = 1};
+#define TTPMS_SETTINGS_FRAME_ID TTPMS_CAN_BASE_ID	// not creating a can_frame struct because we will be receiving this
 
 // This frame is sent out by TTPMS RX to indicate general data
 struct can_frame TTPMS_status = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 1, .dlc = 8};
@@ -86,7 +104,8 @@ struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 
 
 /* END CAN FRAMES*/
 
-// First hex char must be C for random static address
+
+// First hex char must be C for self-assigning address/identity
 #define TTPMS_RX_BT_ID "CA:69:F1:F1:69:69"		// for this device
 #define TTPMS_IFL_BT_ID "CA:69:F1:F1:33:42"		// Internal Front Left BT ID
 #define TTPMS_IFR_BT_ID "CA:69:F1:F1:33:43"		// Internal Front Right BT ID
@@ -97,7 +116,7 @@ struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 
 #define TTPMS_ERL_BT_ID "CA:69:F1:F1:11:24"		// External Rear Left BT ID
 #define TTPMS_ERR_BT_ID "CA:69:F1:F1:11:25"		// External Rear Right BT ID
 
-#define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle (for testing, may change randomly?)
+#define TTPMS_TEST_BT_ID "F6:B3:F2:9C:20:20"	// from nrf dongle (for testing)
 
 #define INIT_INTERVAL	16	/* 10 ms */
 #define INIT_WINDOW		16	/* 10 ms */
@@ -117,8 +136,6 @@ static bt_addr_le_t ERR_bt_addr;
 
 static bt_addr_le_t TEST_bt_addr;
 
-static struct bt_conn *default_conn;
-
 struct bt_le_conn_param conn_param = {
 		.interval_min = CONN_INTERVAL,
 		.interval_max = CONN_INTERVAL,
@@ -126,48 +143,164 @@ struct bt_le_conn_param conn_param = {
 		.timeout = CONN_TIMEOUT,
 	};
 
-/* --- BLE FUNCTIONS START --- */
+static struct bt_gatt_subscribe_params subscribe_params;
+
+
+/* --- CAN WORK FUNCTIONS START --- */
+
+void IFL_CAN_tx_work_handler(struct k_work *work)
+{
+	IFL_temp_1.data[0] = 0x69;
+	IFL_temp_1.data[1] = 0x42;
+	IFL_temp_1.data[2] = 0x11;
+	IFL_temp_1.data[3] = 0x22;
+	IFL_temp_1.data[4] = 0x33;
+	IFL_temp_1.data[5] = 0x44;
+	IFL_temp_1.data[6] = 0x55;
+	IFL_temp_1.data[7] = 0xAF;
+	can_send(can_dev, &IFL_temp_1, K_FOREVER, NULL, NULL);
+
+	IFL_temp_2.data[0] = 0x69;
+	IFL_temp_2.data[1] = 0x42;
+	IFL_temp_2.data[2] = 0x11;
+	IFL_temp_2.data[3] = 0x22;
+	IFL_temp_2.data[4] = 0x33;
+	IFL_temp_2.data[5] = 0x44;
+	IFL_temp_2.data[6] = 0x55;
+	IFL_temp_2.data[7] = 0xAF;
+	can_send(can_dev, &IFL_temp_2, K_FOREVER, NULL, NULL);
+}
+
+K_WORK_DEFINE(IFL_CAN_tx_work, IFL_CAN_tx_work_handler);
+
+/* --- CAN WORK FUNCTIONS END --- */
+
+
+/* --- BLE CALLBACK FUNCTIONS START --- */
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
-	char addr[BT_ADDR_LE_STR_LEN];
+	char addr_str[BT_ADDR_LE_STR_LEN];
 
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+	bt_addr_le_t *addr = bt_conn_get_dst(conn);
+
+	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
 
 	if (err) {
-		LOG_WRN("Failed to connect to %s (%u)\n", addr, err);
-		bt_conn_unref(default_conn);
-		default_conn = NULL;
+		LOG_WRN("Failed to connect to %s (%u)", addr_str, err);
 	} else {
-		LOG_INF("Connected: %s\n", addr);
+		if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
+
+			atomic_set_bit(&flags, IFL_CONNECTED_FLAG);
+			LOG_INF("Internal FL connected, addr: %s", addr_str);
+
+		} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
+
+			atomic_set_bit(&flags, IFR_CONNECTED_FLAG);
+			LOG_INF("Internal FR connected, addr: %s", addr_str);
+
+		} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
+
+			atomic_set_bit(&flags, IRL_CONNECTED_FLAG);
+			LOG_INF("Internal RL connected, addr: %s", addr_str);
+			
+		} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
+
+			atomic_set_bit(&flags, IRR_CONNECTED_FLAG);
+			LOG_INF("Internal RR connected, addr: %s", addr_str);
+			
+		} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
+
+			atomic_set_bit(&flags, EFL_CONNECTED_FLAG);
+			LOG_INF("External FL connected, addr: %s", addr_str);
+
+		} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
+
+			atomic_set_bit(&flags, EFR_CONNECTED_FLAG);
+			LOG_INF("External FR connected, addr: %s", addr_str);
+
+		} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
+
+			atomic_set_bit(&flags, ERL_CONNECTED_FLAG);
+			LOG_INF("External RL connected, addr: %s", addr_str);
+			
+		} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
+
+			atomic_set_bit(&flags, ERR_CONNECTED_FLAG);
+			LOG_INF("External RR connected, addr: %s", addr_str);
+			
+		} else {
+			LOG_WRN("UNRECOGNIZED SENSOR CONNECTED, addr: %s", addr_str);
+		}
 	}
 
 	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
 	if (err) {
-		LOG_ERR("Failed to start automatically connecting (err %d)");
+		LOG_ERR("Failed to start automatically connecting (err %d)", err);
 	}
 
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	char addr[BT_ADDR_LE_STR_LEN];
+	char addr_str[BT_ADDR_LE_STR_LEN];
 
-	int err;
+	bt_addr_le_t *addr = bt_conn_get_dst(conn);
 
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
 
-	LOG_INF("Disconnected: %s (reason 0x%02x)\n", addr, reason);
+	if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
 
-	// i dont understand this conn "ref" business
-	//https://docs.zephyrproject.org/latest/connectivity/bluetooth/api/connection_mgmt.html
-	bt_conn_unref(default_conn);
-	default_conn = NULL;
+		atomic_clear_bit(&flags, IFL_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, IFL_SUBSCRIBED_FLAG);
+		LOG_INF("Internal FL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 
-	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
-	if (err) {
-		LOG_ERR("Failed to start automatically connecting (err %d)");
+	} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
+
+		atomic_clear_bit(&flags, IFR_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, IFR_SUBSCRIBED_FLAG);
+		LOG_INF("Internal FR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+
+	} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
+
+		atomic_clear_bit(&flags, IRL_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, IRL_SUBSCRIBED_FLAG);
+		LOG_INF("Internal RL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+		
+	} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
+
+		atomic_clear_bit(&flags, IRR_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, IRR_SUBSCRIBED_FLAG);
+		LOG_INF("Internal RR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+		
+	} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
+
+		atomic_clear_bit(&flags, EFL_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, EFL_SUBSCRIBED_FLAG);
+		LOG_INF("External FL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+
+	} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
+
+		atomic_clear_bit(&flags, EFR_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, EFR_SUBSCRIBED_FLAG);
+		LOG_INF("External FR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+
+	} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
+
+		atomic_clear_bit(&flags, ERL_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, ERL_SUBSCRIBED_FLAG);
+		LOG_INF("External RL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+		
+	} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
+
+		atomic_clear_bit(&flags, ERR_CONNECTED_FLAG);
+		atomic_clear_bit(&flags, ERR_SUBSCRIBED_FLAG);
+		LOG_INF("External RR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
+		
+	} else {
+		LOG_WRN("UNRECOGNIZED SENSOR DISCONNECTED, addr: %s (reason 0x%02x)", addr_str, reason);
 	}
+
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
@@ -175,49 +308,15 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.disconnected = disconnected,
 };
 
-/* --- BLE FUNCTIONS END --- */
-
-
-/* --- CAN FUNCTIONS START --- */
-
-// CAN TX callback function (necessary for non-blocking TX, why??? also, is blocking fine since it's in workqueue?)
-void tx_irq_callback(const struct device *dev, int error, void *arg)
+void IFL_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params, const void *data, uint16_t length)
 {
-	char *sender = (char *)arg;
+	// should we update a global temp value variable with the data, then do the CAN_tx work?
+	// or should we pass the data to the CAN_tx work?
+	// do we want global temp value variables?
 
-	ARG_UNUSED(dev);
-
-	if (error != 0) {
-		LOG_WRN("Callback! error-code: %d\nSender: %s\n",
-		       error, sender);
-	}
 }
 
-/* --- CAN FUNCTIONS END --- */
-
-
-/* --- WORK FUNCTIONS START --- */
-
-// submitting to system work queue is necessary so that this isn't blocking
-// (SPI was crashing without this)
-void CAN_transmit_work_handler(struct k_work *work)
-{
-	// this will be triggered by BLE notifications
-	test_frame.data[0] = 0x69;
-	test_frame.data[1] = 0x42;
-	test_frame.data[2] = 0x11;
-	test_frame.data[3] = 0x22;
-	test_frame.data[4] = 0x33;
-	test_frame.data[5] = 0x44;
-	test_frame.data[6] = 0x55;
-	test_frame.data[7] = 0xAF;
-	can_send(can_dev, &test_frame, K_FOREVER, tx_irq_callback, "Test message");
-}
-
-K_WORK_DEFINE(CAN_transmit_work, CAN_transmit_work_handler);
-
-
-/* --- WORK FUNCTIONS END --- */
+/* --- BLE CALLBACK FUNCTIONS END --- */
 
 
 void main(void)
@@ -244,66 +343,118 @@ void main(void)
 	// create self BT address
 	err = bt_addr_le_from_str(TTPMS_RX_BT_ID, "random", &addr);
 	if (err) {
-		LOG_WRN("Invalid BT address (err %d)\n", err);
+		LOG_WRN("Invalid BT address (err %d)", err);
 	}
 
 	// assign self BT address
-	err = bt_id_create(&addr, NULL);
-	if (err < 0) {
-		LOG_WRN("Creating new BT ID failed (err %d)\n", err);
+	int bt_identity;
+	bt_identity = bt_id_create(&addr, NULL);
+	if (bt_identity < 0) {
+		LOG_WRN("Creating new BT ID failed (err %d)", err);
 	}
 
 	err = bt_enable(NULL);
 	if (err) {
-		LOG_WRN("Bluetooth init failed (err %d)\n", err);
+		LOG_WRN("Bluetooth init failed (err %d)", err);
 	} else {
-		LOG_INF("Bluetooth initialized\n");
+		LOG_INF("Bluetooth initialized");
 	}
 
 	// fill address variables for the devices we want to filter for
 	err = bt_addr_le_from_str(TTPMS_IFL_BT_ID, "random", &IFL_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_IFR_BT_ID, "random", &IFR_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_IRL_BT_ID, "random", &IRL_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_IRR_BT_ID, "random", &IRR_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_EFL_BT_ID, "random", &EFL_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_EFR_BT_ID, "random", &EFR_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_ERL_BT_ID, "random", &ERL_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
+
 	err = bt_addr_le_from_str(TTPMS_ERR_BT_ID, "random", &ERR_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
 
 	err = bt_addr_le_from_str(TTPMS_TEST_BT_ID, "random", &TEST_bt_addr);
-	if (err) { LOG_WRN("Invalid BT address (err %d)\n", err); }
+	if (err) { LOG_WRN("Invalid BT address (err %d)", err); }
 
-	// Add address of the devices we want to filter accept list (these address variables were filled in main)
+	// Add address of the devices we want to filter accept list
 	err = bt_le_filter_accept_list_add(&IFL_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&IFR_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&IRL_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&IRR_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&EFL_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&EFR_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
 	err = bt_le_filter_accept_list_add(&ERL_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
-	err = bt_le_filter_accept_list_add(&ERR_bt_addr);
-	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
+
+	//err = bt_le_filter_accept_list_add(&ERR_bt_addr);
+	//if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
 
 	err = bt_le_filter_accept_list_add(&TEST_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
 
 	err = bt_conn_le_create_auto(BT_CONN_LE_CREATE_CONN, &conn_param);
 	if (err) {
-		LOG_ERR("Failed to start automatically connecting (err %d)");
+		LOG_ERR("Failed to start automatically connecting (err %d)", err);
+	}
+
+	while(1)
+	{
+
+		
+		if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG)) // TEMP_ENABLED_FLAG will actually be set upon receiving CAN message
+		{
+			k_sleep(K_SECONDS(1));
+			atomic_set_bit(&flags, TEMP_ENABLED_FLAG);
+		}
+
+
+		if (atomic_test_bit(&flags, TEMP_ENABLED_FLAG))	{ // if temp is enabled, make sure we are subscribed to all connected sensors
+			if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG) && !atomic_test_bit(&flags, IFL_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
+			{
+				subscribe_params.notify = IFL_temp_notify_cb;
+				err = bt_gatt_subscribe(bt_conn_lookup_addr_le(bt_identity, &IFL_bt_addr), &subscribe_params);
+				if (err) {
+					LOG_WRN("Failed to subscribe to IFL temp (err %d)", err);
+				} else {
+					atomic_set_bit(&flags, IFL_SUBSCRIBED_FLAG);
+				}
+			}
+		} else {	// if temp is not enabled, make sure we are not subscribed to any connected sensors
+			if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG) && atomic_test_bit(&flags, IFL_SUBSCRIBED_FLAG)) // if connected and subscribed, we need to unsubscribe
+			{
+				err = 0; // err = bt_gatt_unsubscribe(bla bla, get conn from addr, etc);
+				if (err) {
+					LOG_WRN("Failed to unsubscribe to IFL temp (err %d)", err);
+				} else {
+					atomic_clear_bit(&flags, IFL_SUBSCRIBED_FLAG);
+				}
+			}
+		}
+
+
 	}
 }

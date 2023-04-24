@@ -42,7 +42,7 @@ CACHED_BOARD:STRING=nrf52833dk_nrf52833
 // listed, e.g. CONF_FILE="prj1.conf;prj2.conf" The CACHED_CONF_FILE
 // is internal Zephyr variable used between CMake runs. To change
 // CONF_FILE, use the CONF_FILE variable.
-CACHED_CONF_FILE:STRING=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/prj.conf
+CACHED_CONF_FILE:STRING=c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/prj.conf
 
 //Selected shield
 CACHED_SHIELD:STRING=
@@ -115,8 +115,8 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 //Flags used by the CXX compiler during RELWITHDEBINFO builds.
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
-//C compiler
-CMAKE_C_COMPILER:STRING=C:/ncs/toolchains/v2.3.0/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc.exe
+//Path to a program.
+CMAKE_C_COMPILER:FILEPATH=C:/ncs/toolchains/v2.3.0/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc.exe
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -296,12 +296,8 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 //Path to a program.
 DTC:FILEPATH=C:/ncs/toolchains/v2.3.0/opt/bin/dtc.exe
 
-//If desired, you can build the application using the DT configuration
-// settings specified in an alternate .overlay file using this
-// parameter. These settings will override the settings in the
-// board's .dts file. Multiple files may be listed, e.g. DTC_OVERLAY_FILE="dts1.overlay
-// dts2.overlay"
-DTC_OVERLAY_FILE:STRING=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay
+//No help, variable specified on the command line.
+DTC_OVERLAY_FILE:STRING=c:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/nrf52833dk_nrf52833.overlay
 
 //Path to a program.
 GPERF:FILEPATH=C:/ncs/toolchains/v2.3.0/opt/bin/gperf.exe
@@ -435,8 +431,6 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_C_COMPILER
-CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
 CMAKE_C_COMPILER_AR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_RANLIB
