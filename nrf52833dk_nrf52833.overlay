@@ -53,14 +53,14 @@
 	cs-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>,		// SD card CS on P0.11
 			   <&gpio0 17 GPIO_ACTIVE_LOW>;		// MCP2515 CS on P0.17
 
-	can1: can1@1 {
+	can: can@1 {
 		compatible = "microchip,mcp2515";
 		status = "okay";
 		spi-max-frequency = <1000000>;
 		int-gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;	// interupt on P1.07	ttpms_rx_2_0 uses P0.15 but this is an LED on the DK
 		reg = <1>;			// use second CS pin (see cs-gpios above)
 		osc-freq = <10000000>;	// 10MHz for click board
-		bus-speed = <1000000>;	// 500kpbs for testing
+		bus-speed = <1000000>;	// 1Mbps
 		sjw = <1>;
 		sample-point = <750>;	// 75% sample point
 
@@ -93,6 +93,12 @@
 
 / {
 	chosen {
-		zephyr,canbus = &can1;
+		zephyr,canbus = &can;
+	};
+
+	buttons {
+		button0: button_0 {
+			status = "disabled";	// we are using this pin for SD card CS
+		};
 	};
 };

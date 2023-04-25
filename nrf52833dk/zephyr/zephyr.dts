@@ -17,7 +17,7 @@
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
 		zephyr,ieee802154 = &ieee802154;
-		zephyr,canbus = &can1;
+		zephyr,canbus = &can;
 	};
 	aliases {
 		led0 = &led0;
@@ -129,7 +129,7 @@
 			pinctrl-1 = < &spi0_sleep >;
 			pinctrl-names = "default", "sleep";
 			cs-gpios = < &gpio0 0xb 0x1 >, < &gpio0 0x11 0x1 >;
-			can1: can1@1 {
+			can: can@1 {
 				compatible = "microchip,mcp2515";
 				status = "okay";
 				spi-max-frequency = < 0xf4240 >;
@@ -672,6 +672,7 @@
 		button0: button_0 {
 			gpios = < &gpio0 0xb 0x11 >;
 			label = "Push button switch 0";
+			status = "disabled";
 		};
 		button1: button_1 {
 			gpios = < &gpio0 0xc 0x11 >;

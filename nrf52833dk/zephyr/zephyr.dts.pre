@@ -1063,7 +1063,7 @@ zephyr_udc0: &usbd {
  cs-gpios = <&gpio0 11 (1 << 0)>,
       <&gpio0 17 (1 << 0)>;
 
- can1: can1@1 {
+ can: can@1 {
   compatible = "microchip,mcp2515";
   status = "okay";
   spi-max-frequency = <1000000>;
@@ -1103,7 +1103,13 @@ zephyr_udc0: &usbd {
 
 / {
  chosen {
-  zephyr,canbus = &can1;
+  zephyr,canbus = &can;
+ };
+
+ buttons {
+  button0: button_0 {
+   status = "disabled";
+  };
  };
 };
 # 0 "<command-line>" 2

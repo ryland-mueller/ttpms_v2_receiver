@@ -20,8 +20,9 @@
 LOG_MODULE_REGISTER(ttpms);
 
 
-// use atomic set, clear, test functions
-atomic_t flags;
+// How we keep track of state.
+// Use Zephyr atomic set, clear, test functions.
+ATOMIC_DEFINE(flags, 18);
 #define IFL_CONNECTED_FLAG		0
 #define IFR_CONNECTED_FLAG		1
 #define IRL_CONNECTED_FLAG		2
@@ -45,6 +46,9 @@ atomic_t flags;
 #define CANBUS_NODE DT_CHOSEN(zephyr_canbus)
 
 const struct device *can_dev = DEVICE_DT_GET(CANBUS_NODE);
+
+static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET_OR(DT_ALIAS(sw1), gpios, {0});
+static struct gpio_callback button_cb_data;
 
 
 // Standard 11-bit CAN IDs can be up to 2047 (0x7FF). Lower = higher priority
@@ -143,8 +147,6 @@ struct bt_le_conn_param conn_param = {
 		.timeout = CONN_TIMEOUT,
 	};
 
-static struct bt_gatt_subscribe_params subscribe_params;
-
 
 /* --- CAN WORK FUNCTIONS START --- */
 
@@ -178,11 +180,11 @@ K_WORK_DEFINE(IFL_CAN_tx_work, IFL_CAN_tx_work_handler);
 
 /* --- BLE CALLBACK FUNCTIONS START --- */
 
-static void connected(struct bt_conn *conn, uint8_t err)
+static void connected(struct bt_conn *conn, uint8_t err)	// here we set the connected bit for the sensor that connected (self-explanatory)
 {
 	char addr_str[BT_ADDR_LE_STR_LEN];
 
-	bt_addr_le_t *addr = bt_conn_get_dst(conn);
+	const bt_addr_le_t *addr = bt_conn_get_dst(conn);
 
 	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
 
@@ -191,42 +193,42 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	} else {
 		if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
 
-			atomic_set_bit(&flags, IFL_CONNECTED_FLAG);
+			atomic_set_bit(flags, IFL_CONNECTED_FLAG);
 			LOG_INF("Internal FL connected, addr: %s", addr_str);
 
 		} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
 
-			atomic_set_bit(&flags, IFR_CONNECTED_FLAG);
+			atomic_set_bit(flags, IFR_CONNECTED_FLAG);
 			LOG_INF("Internal FR connected, addr: %s", addr_str);
 
 		} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
 
-			atomic_set_bit(&flags, IRL_CONNECTED_FLAG);
+			atomic_set_bit(flags, IRL_CONNECTED_FLAG);
 			LOG_INF("Internal RL connected, addr: %s", addr_str);
 			
 		} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
 
-			atomic_set_bit(&flags, IRR_CONNECTED_FLAG);
+			atomic_set_bit(flags, IRR_CONNECTED_FLAG);
 			LOG_INF("Internal RR connected, addr: %s", addr_str);
 			
 		} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
 
-			atomic_set_bit(&flags, EFL_CONNECTED_FLAG);
+			atomic_set_bit(flags, EFL_CONNECTED_FLAG);
 			LOG_INF("External FL connected, addr: %s", addr_str);
 
 		} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
 
-			atomic_set_bit(&flags, EFR_CONNECTED_FLAG);
+			atomic_set_bit(flags, EFR_CONNECTED_FLAG);
 			LOG_INF("External FR connected, addr: %s", addr_str);
 
 		} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
 
-			atomic_set_bit(&flags, ERL_CONNECTED_FLAG);
+			atomic_set_bit(flags, ERL_CONNECTED_FLAG);
 			LOG_INF("External RL connected, addr: %s", addr_str);
 			
 		} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
 
-			atomic_set_bit(&flags, ERR_CONNECTED_FLAG);
+			atomic_set_bit(flags, ERR_CONNECTED_FLAG);
 			LOG_INF("External RR connected, addr: %s", addr_str);
 			
 		} else {
@@ -241,60 +243,60 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 }
 
-static void disconnected(struct bt_conn *conn, uint8_t reason)
+static void disconnected(struct bt_conn *conn, uint8_t reason)	// here we clear the connected bit for the sensor that disconnected (self-explanatory), and we also clear the subscribe bit so that the logic in main will know to subscribe again if re-connected
 {
 	char addr_str[BT_ADDR_LE_STR_LEN];
 
-	bt_addr_le_t *addr = bt_conn_get_dst(conn);
+	const bt_addr_le_t *addr = bt_conn_get_dst(conn);
 
 	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
 
 	if (bt_addr_le_eq(addr, &IFL_bt_addr)) {
 
-		atomic_clear_bit(&flags, IFL_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, IFL_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, IFL_CONNECTED_FLAG);
+		atomic_clear_bit(flags, IFL_SUBSCRIBED_FLAG);
 		LOG_INF("Internal FL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 
 	} else if (bt_addr_le_eq(addr, &IFR_bt_addr)) {
 
-		atomic_clear_bit(&flags, IFR_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, IFR_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, IFR_CONNECTED_FLAG);
+		atomic_clear_bit(flags, IFR_SUBSCRIBED_FLAG);
 		LOG_INF("Internal FR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 
 	} else if (bt_addr_le_eq(addr, &IRL_bt_addr)) {
 
-		atomic_clear_bit(&flags, IRL_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, IRL_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, IRL_CONNECTED_FLAG);
+		atomic_clear_bit(flags, IRL_SUBSCRIBED_FLAG);
 		LOG_INF("Internal RL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 		
 	} else if (bt_addr_le_eq(addr, &IRR_bt_addr)) {
 
-		atomic_clear_bit(&flags, IRR_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, IRR_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, IRR_CONNECTED_FLAG);
+		atomic_clear_bit(flags, IRR_SUBSCRIBED_FLAG);
 		LOG_INF("Internal RR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 		
 	} else if (bt_addr_le_eq(addr, &EFL_bt_addr)) {
 
-		atomic_clear_bit(&flags, EFL_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, EFL_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, EFL_CONNECTED_FLAG);
+		atomic_clear_bit(flags, EFL_SUBSCRIBED_FLAG);
 		LOG_INF("External FL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 
 	} else if (bt_addr_le_eq(addr, &EFR_bt_addr)) {
 
-		atomic_clear_bit(&flags, EFR_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, EFR_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, EFR_CONNECTED_FLAG);
+		atomic_clear_bit(flags, EFR_SUBSCRIBED_FLAG);
 		LOG_INF("External FR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 
 	} else if (bt_addr_le_eq(addr, &ERL_bt_addr)) {
 
-		atomic_clear_bit(&flags, ERL_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, ERL_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, ERL_CONNECTED_FLAG);
+		atomic_clear_bit(flags, ERL_SUBSCRIBED_FLAG);
 		LOG_INF("External RL disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 		
 	} else if (bt_addr_le_eq(addr, &ERR_bt_addr)) {
 
-		atomic_clear_bit(&flags, ERR_CONNECTED_FLAG);
-		atomic_clear_bit(&flags, ERR_SUBSCRIBED_FLAG);
+		atomic_clear_bit(flags, ERR_CONNECTED_FLAG);
+		atomic_clear_bit(flags, ERR_SUBSCRIBED_FLAG);
 		LOG_INF("External RR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 		
 	} else {
@@ -308,15 +310,47 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.disconnected = disconnected,
 };
 
-void IFL_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params, const void *data, uint16_t length)
+uint8_t IFL_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params, const void *data, uint16_t length)
 {
 	// should we update a global temp value variable with the data, then do the CAN_tx work?
 	// or should we pass the data to the CAN_tx work?
 	// do we want global temp value variables?
 
+	if (data == NULL){	// When successfully unsubscribed, notify callback is called one last time with data set to NULL (from Zephyr docs)
+		LOG_INF("Successfully unsubscribed from IFL temp");
+		return BT_GATT_ITER_STOP; // might as well return this (it's zero), shouldn't matter
+	}
+
+	if (!atomic_test_bit(flags, TEMP_ENABLED_FLAG)) {	// if temp is not enabled, we need to unsubscribe
+		LOG_INF("Attempting to unsubscribe from IFL temp");
+		return BT_GATT_ITER_STOP;	// returning this tells the BT Host to unsubscribe us
+	}
+
+	// do the actual normal notification stuff here
+
+	return BT_GATT_ITER_CONTINUE;
+
 }
 
+static struct bt_gatt_subscribe_params IFL_subscribe_params = {
+		.notify = IFL_temp_notify_cb,
+};
+
+// NOTE: each sensor needs to have its own subscribe_params variable since it remains tied to each subscription (from Zephyr docs)
+
 /* --- BLE CALLBACK FUNCTIONS END --- */
+
+
+void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
+{
+	if(!atomic_test_bit(flags, TEMP_ENABLED_FLAG)) {
+		atomic_set_bit(flags, TEMP_ENABLED_FLAG);
+		LOG_INF("Button pressed, ENABLED temperature");
+	} else {
+		atomic_clear_bit(flags, TEMP_ENABLED_FLAG);
+		LOG_INF("Button pressed, DISABLED temperature");
+	}
+}
 
 
 void main(void)
@@ -337,6 +371,26 @@ void main(void)
 	}
 
 	*/
+
+	// button for testing purposes
+	if (!gpio_is_ready_dt(&button)) {
+		LOG_ERR("Error: button device %s is not ready", button.port->name);
+		return;
+	}
+	err = gpio_pin_configure_dt(&button, GPIO_INPUT);
+	if (err != 0) {
+		LOG_ERR("Error %d: failed to configure %s pin %d", err, button.port->name, button.pin);
+		return;
+	}
+	err = gpio_pin_interrupt_configure_dt(&button, GPIO_INT_EDGE_TO_ACTIVE);
+	if (err != 0) {
+		LOG_ERR("Error %d: failed to configure interrupt on %s pin %d", err, button.port->name, button.pin);
+		return;
+	}
+	gpio_init_callback(&button_cb_data, button_pressed, BIT(button.pin));
+	gpio_add_callback(button.port, &button_cb_data);
+	LOG_ERR("Set up button at %s pin %d", button.port->name, button.pin);
+
 
 	bt_addr_le_t addr;
 
@@ -423,38 +477,26 @@ void main(void)
 
 	while(1)
 	{
-
 		
-		if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG)) // TEMP_ENABLED_FLAG will actually be set upon receiving CAN message
-		{
-			k_sleep(K_SECONDS(1));
-			atomic_set_bit(&flags, TEMP_ENABLED_FLAG);
-		}
+		if (atomic_test_bit(flags, TEMP_ENABLED_FLAG))	{ // if temp is enabled, make sure we are subscribed to all connected sensors
 
-
-		if (atomic_test_bit(&flags, TEMP_ENABLED_FLAG))	{ // if temp is enabled, make sure we are subscribed to all connected sensors
-			if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG) && !atomic_test_bit(&flags, IFL_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
+			if (atomic_test_bit(flags, IFL_CONNECTED_FLAG) && !atomic_test_bit(flags, IFL_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
 			{
-				subscribe_params.notify = IFL_temp_notify_cb;
-				err = bt_gatt_subscribe(bt_conn_lookup_addr_le(bt_identity, &IFL_bt_addr), &subscribe_params);
+				/*
+				atomic_set_bit(&flags, IFL_SUBSCRIBED_FLAG); // we want to be sure this is set before the first notify callback, which will unsubscribe itself if this is not set
+				// set da params? (IFL_subscribe_params) prob need to to proper discover in order to get att handle :(
+				err = bt_gatt_subscribe(bt_conn_lookup_addr_le(bt_identity, &IFL_bt_addr), &IFL_subscribe_params);
 				if (err) {
 					LOG_WRN("Failed to subscribe to IFL temp (err %d)", err);
-				} else {
-					atomic_set_bit(&flags, IFL_SUBSCRIBED_FLAG);
-				}
-			}
-		} else {	// if temp is not enabled, make sure we are not subscribed to any connected sensors
-			if (atomic_test_bit(&flags, IFL_CONNECTED_FLAG) && atomic_test_bit(&flags, IFL_SUBSCRIBED_FLAG)) // if connected and subscribed, we need to unsubscribe
-			{
-				err = 0; // err = bt_gatt_unsubscribe(bla bla, get conn from addr, etc);
-				if (err) {
-					LOG_WRN("Failed to unsubscribe to IFL temp (err %d)", err);
-				} else {
-					atomic_clear_bit(&flags, IFL_SUBSCRIBED_FLAG);
-				}
-			}
-		}
+					atomic_clear_bit(&flags, IFL_SUBSCRIBED_FLAG); // clear the flag we just set (see above) if we did not actually successfully subscribe
+				}*/
 
+				LOG_INF("Attempting to discover");
+				// do discover here
+				atomic_set_bit(flags, IFL_SUBSCRIBED_FLAG); // temporary so we don't keep discovering (which is also temporarily here)
+			}
 
+		} 
+		// NOTE: the notify callbacks will unsubscribe themselves if they see that temp is not enabled
 	}
 }
