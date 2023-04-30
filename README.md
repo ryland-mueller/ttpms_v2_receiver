@@ -1,7 +1,9 @@
 # TTPMS V2 Receiver Application
 The application running on the TTPMS V2 wireless receiver board. Communicates with the 8 wireless TTPMS sensors through Bluetooth LE, and with the rest of the car through CAN bus.<br />
 
-## A overview of the TTPMS project:<br />
+The board definition files (link to repo below) are required in order to build and flash this application onto the TTPMS V2 Receiver board.
+
+## An overview of the TTPMS project:<br />
 *link coming soon*<br />
 <br />
 
