@@ -676,6 +676,7 @@
   zephyr,sram = &sram0;
   zephyr,flash = &flash0;
   zephyr,code-partition = &slot0_partition;
+  zephyr,canbus = &can;
  };
 };
 
@@ -701,6 +702,25 @@
  pinctrl-0 = <&spi0_default>;
  pinctrl-1 = <&spi0_sleep>;
  pinctrl-names = "default", "sleep";
+
+ cs-gpios = <&gpio0 11 (1 << 0)>,
+      <&gpio0 17 (1 << 0)>;
+
+ can: can@1 {
+  compatible = "microchip,mcp2515";
+  status = "okay";
+  spi-max-frequency = <1000000>;
+  int-gpios = <&gpio0 15 (1 << 0)>;
+  reg = <1>;
+  osc-freq = <20000000>;
+  bus-speed = <1000000>;
+  sjw = <1>;
+  sample-point = <750>;
+
+  can-transceiver {
+   max-bitrate = <1000000>;
+  };
+ };
 };
 
 &flash0 {

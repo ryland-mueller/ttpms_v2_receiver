@@ -74,6 +74,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/console/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/gpio/cmake_install.cmake")
 endif()
 

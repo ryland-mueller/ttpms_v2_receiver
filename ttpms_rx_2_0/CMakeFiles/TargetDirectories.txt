@@ -158,6 +158,9 @@ C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/dri
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/clock_control/CMakeFiles/drivers__clock_control.dir
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/clock_control/CMakeFiles/edit_cache.dir
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/clock_control/CMakeFiles/rebuild_cache.dir
+C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/console/CMakeFiles/drivers__console.dir
+C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/console/CMakeFiles/edit_cache.dir
+C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/console/CMakeFiles/rebuild_cache.dir
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/gpio/CMakeFiles/drivers__gpio.dir
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/gpio/CMakeFiles/edit_cache.dir
 C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver/ttpms_rx_2_0/zephyr/drivers/gpio/CMakeFiles/rebuild_cache.dir

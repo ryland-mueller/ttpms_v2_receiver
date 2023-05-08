@@ -11,6 +11,7 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
+		zephyr,canbus = &can;
 	};
 	aliases {
 	};
@@ -101,6 +102,21 @@
 			pinctrl-0 = < &spi0_default >;
 			pinctrl-1 = < &spi0_sleep >;
 			pinctrl-names = "default", "sleep";
+			cs-gpios = < &gpio0 0xb 0x1 >, < &gpio0 0x11 0x1 >;
+			can: can@1 {
+				compatible = "microchip,mcp2515";
+				status = "okay";
+				spi-max-frequency = < 0xf4240 >;
+				int-gpios = < &gpio0 0xf 0x1 >;
+				reg = < 0x1 >;
+				osc-freq = < 0x1312d00 >;
+				bus-speed = < 0xf4240 >;
+				sjw = < 0x1 >;
+				sample-point = < 0x2ee >;
+				can-transceiver {
+					max-bitrate = < 0xf4240 >;
+				};
+			};
 		};
 		i2c1: i2c@40004000 {
 			compatible = "nordic,nrf-twim";
@@ -162,7 +178,7 @@
 			cc-num = < 0x4 >;
 			interrupts = < 0xa 0x1 >;
 			prescaler = < 0x0 >;
-			phandle = < 0x4 >;
+			phandle = < 0x5 >;
 		};
 		rtc0: rtc@4000b000 {
 			compatible = "nordic,nrf-rtc";
@@ -426,6 +442,7 @@
 			#gpio-cells = < 0x2 >;
 			status = "okay";
 			port = < 0x0 >;
+			phandle = < 0x4 >;
 		};
 		gpio1: gpio@50000300 {
 			compatible = "nordic,nrf-gpio";
