@@ -384,6 +384,8 @@ hello_world_SOURCE_DIR:STATIC=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_re
 APPLICATION_CONFIG_DIR:INTERNAL=C:/Users/Ryland/Documents/NCS_Projects/ttpms_v2_receiver
 //DT bindings root directories
 CACHED_DTS_ROOT_BINDINGS:INTERNAL=C:/ncs/v2.3.0/nrf/dts/bindings;C:/ncs/v2.3.0/zephyr/dts/bindings
+CLI_CONFIG_DEBUG_OPTIMIZATIONS:INTERNAL=y
+CLI_CONFIG_DEBUG_THREAD_INFO:INTERNAL=y
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR

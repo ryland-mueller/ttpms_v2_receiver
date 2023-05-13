@@ -18,8 +18,11 @@
 
 /* includes for debugging/temporary */
 #include <zephyr/logging/log.h>
-
 LOG_MODULE_REGISTER(ttpms);
+
+
+// mount SD card to disk name we gave to the logging backend, so that it's only defined in one place (prj.conf)
+//#define DISK_MOUNT_PT CONFIG_LOG_BACKEND_FS_DIR
 
 
 // How we keep track of state.
@@ -45,18 +48,15 @@ ATOMIC_DEFINE(flags, 18);
 #define ERR_SUBSCRIBED_FLAG		17
 
 
-const struct device *can_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_canbus));
 
+/* --- CAN BUS START --- */
 
 // Standard 11-bit CAN IDs can be up to 2047 (0x7FF). Lower = higher priority
-#define TTPMS_CAN_BASE_ID 0x400
-
-/* START CAN FRAMES*/
-// Ensure this is always up to date with CAN .dbc file to be kept in version control by the team
+#define TTPMS_CAN_BASE_ID 0x300
 
 // This frame is sent by dash or other controller to enable & configure TTPMS
 // 0th byte:	0th bit = temp enable	1th bit = pressure enable
-#define TTPMS_SETTINGS_FRAME_ID TTPMS_CAN_BASE_ID	// not creating a can_frame struct because we will be receiving this
+#define TTPMS_SETTINGS_FRAME_ID TTPMS_CAN_BASE_ID	// not creating a can_frame struct because we will only be receiving this
 
 // This frame is sent out by TTPMS RX to indicate general data
 // 0th byte:	0th bit = temp enabled	1th bit = pressure enabled
@@ -106,26 +106,110 @@ struct can_frame ERL_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 23, .dlc = 
 struct can_frame ERR_temp_1 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 24, .dlc = 8};
 struct can_frame ERR_temp_2 = {.flags = 0, .id = TTPMS_CAN_BASE_ID + 25, .dlc = 8};
 
-/* END CAN FRAMES*/
+const struct device *can_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_canbus));
+
+const struct can_filter settings_frame_filter = {
+        .flags = CAN_FILTER_DATA,
+        .id = TTPMS_SETTINGS_FRAME_ID,
+        .mask = CAN_STD_ID_MASK
+};
+
+void settings_frame_cb(const struct device *dev, struct can_frame *frame, void *user_data)
+{
+
+    if (frame->data[0] & 0x01) {
+		if(!atomic_test_and_set_bit(flags, TEMP_ENABLED_FLAG)) {
+			LOG_INF("Temperature ENABLED via CAN");
+		}
+	} else {
+		if(atomic_test_and_clear_bit(flags, TEMP_ENABLED_FLAG)) {
+			LOG_INF("Temperature DISABLED via CAN");
+		}
+	}
+
+	if (frame->data[0] & 0x02) {
+		if(!atomic_test_and_set_bit(flags, PRESSURE_ENABLED_FLAG)) {
+			LOG_INF("Pressure ENABLED via CAN");
+		}
+	} else {
+		if(atomic_test_and_clear_bit(flags, PRESSURE_ENABLED_FLAG)) {
+			LOG_INF("Pressure DISABLED via CAN");
+		}
+	}
+}
+
+// The CAN frame structs are filled with data from BLE notification callback.
+// The filled frames are then sent here in system workqueue since can_send is blocking.
+
+void status_CAN_tx_work_handler(struct k_work *work)
+{
+	//LOG_INF("status_CAN_tx_work_handler: Sending TTPMS status frame");
+	can_send(can_dev, &TTPMS_status, K_FOREVER, NULL, NULL);
+}
+K_WORK_DEFINE(status_CAN_tx_work, status_CAN_tx_work_handler);
+
+void IFL_temp_CAN_tx_work_handler(struct k_work *work)
+{
+	//LOG_INF("IFL_temp_CAN_tx_work_handler: Sending IFL temp frames");
+	can_send(can_dev, &IFL_temp_1, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &IFL_temp_2, K_FOREVER, NULL, NULL);
+}
+K_WORK_DEFINE(IFL_temp_CAN_tx_work, IFL_temp_CAN_tx_work_handler);
+
+void EFL_temp_CAN_tx_work_handler(struct k_work *work)
+{
+	//LOG_INF("EFL_temp_CAN_tx_work_handler: Sending EFL temp frames");
+	can_send(can_dev, &EFL_temp_1, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFL_temp_2, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFL_temp_3, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFL_temp_4, K_FOREVER, NULL, NULL);
+}
+K_WORK_DEFINE(EFL_temp_CAN_tx_work, EFL_temp_CAN_tx_work_handler);
+
+void EFR_temp_CAN_tx_work_handler(struct k_work *work)
+{
+	//LOG_INF("EFR_temp_CAN_tx_work_handler: Sending EFR temp frames");
+	can_send(can_dev, &EFR_temp_1, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFR_temp_2, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFR_temp_3, K_FOREVER, NULL, NULL);
+	can_send(can_dev, &EFR_temp_4, K_FOREVER, NULL, NULL);
+}
+K_WORK_DEFINE(EFR_temp_CAN_tx_work, EFR_temp_CAN_tx_work_handler);
+
+void TTPMS_CAN_init(void)
+{
+	int err;
+
+	if (!device_is_ready(can_dev)) {
+		LOG_WRN("CAN device not ready");
+		return;
+	}
+
+	err = can_start(can_dev);
+	if (err != 0) {
+		LOG_WRN("Error starting CAN controller (err %d)", err);
+		return;
+	}
+
+	err = can_add_rx_filter(can_dev, settings_frame_cb, NULL, &settings_frame_filter);
+	if (err < 0) {
+		LOG_ERR("Unable to add CAN RX filter (err %d)", err);
+	}
+}
+
+/* --- CAN BUS END --- */
 
 
-static bt_addr_le_t IFL_bt_addr;
-static bt_addr_le_t IFR_bt_addr;
-static bt_addr_le_t IRL_bt_addr;
-static bt_addr_le_t IRR_bt_addr;
-static bt_addr_le_t EFL_bt_addr;
-static bt_addr_le_t EFR_bt_addr;
-static bt_addr_le_t ERL_bt_addr;
-static bt_addr_le_t ERR_bt_addr;
 
+/* --- BLE STUFF START --- */
 
-#define CONN_INTERVAL	24	// * 1.25 = 30 ms
+#define CONN_INTERVAL	24	// * 1.25 = 30 ms	try changing back to 10ms for the lols?
 #define CONN_LATENCY	0
 #define CONN_TIMEOUT	MIN(MAX((CONN_INTERVAL * 125 * \
 			       		MAX(CONFIG_BT_MAX_CONN, 6) / 1000), 10), 3200)
 
-#define SCAN_INTERVAL	400	// * 0.625 = 250 ms
-#define SCAN_WINDOW		16	// * 0.625 = 10 ms
+//#define SCAN_INTERVAL	400	// * 0.625 = 250 ms
+//#define SCAN_WINDOW		64	// * 0.625 = 40 ms
 
 struct bt_le_conn_param conn_param = {
 		.interval_min = CONN_INTERVAL,
@@ -136,66 +220,23 @@ struct bt_le_conn_param conn_param = {
 
 struct bt_conn_le_create_param scan_param = {
 		.options = BT_CONN_LE_OPT_NONE,
-		.interval = SCAN_INTERVAL,
-		.window = SCAN_WINDOW,
+		//.interval = SCAN_INTERVAL,
+		//.window = SCAN_WINDOW,
 	};
 
+static bt_addr_le_t IFL_bt_addr;
+static bt_addr_le_t IFR_bt_addr;
+static bt_addr_le_t IRL_bt_addr;
+static bt_addr_le_t IRR_bt_addr;
+static bt_addr_le_t EFL_bt_addr;
+static bt_addr_le_t EFR_bt_addr;
+static bt_addr_le_t ERL_bt_addr;
+static bt_addr_le_t ERR_bt_addr;
 
+int bt_identity;	// self BT address/identity
 
-/* --- CAN STUFF START --- */
-
-const struct can_filter settings_frame_filter = {
-        .flags = CAN_FILTER_DATA,
-        .id = TTPMS_SETTINGS_FRAME_ID,
-        .mask = CAN_STD_ID_MASK
-};
-
-void settings_frame_cb(const struct device *dev, struct can_frame *frame, void *user_data)
-{
-    if (frame->data[0] && 0x01) {
-		if(!atomic_test_and_set_bit(flags, TEMP_ENABLED_FLAG)) {
-			LOG_INF("TEMP ENABLED via CAN");
-		}
-	} else {
-		if(atomic_test_and_clear_bit(flags, TEMP_ENABLED_FLAG)) {
-			LOG_INF("TEMP DISABLED via CAN");
-		}
-	}
-
-	if (frame->data[0] && 0x02) {
-		if(!atomic_test_and_set_bit(flags, PRESSURE_ENABLED_FLAG)) {
-			LOG_INF("PRESSURE ENABLED via CAN");
-		}
-	} else {
-		if(atomic_test_and_clear_bit(flags, PRESSURE_ENABLED_FLAG)) {
-			LOG_INF("PRESSURE DISABLED via CAN");
-		}
-	}
-}
-
-// The CAN frame structs are filled with data from BLE notification callback.
-// The filled frames are then sent here in system workqueue since can_send is blocking.
-
-void status_CAN_tx_work_handler(struct k_work *work)
-{
-	can_send(can_dev, &TTPMS_status, K_FOREVER, NULL, NULL);
-}
-K_WORK_DEFINE(status_CAN_tx_work, status_CAN_tx_work_handler);
-
-
-void IFL_CAN_tx_work_handler(struct k_work *work)
-{
-	can_send(can_dev, &IFL_temp_1, K_FOREVER, NULL, NULL);
-	can_send(can_dev, &IFL_temp_2, K_FOREVER, NULL, NULL);
-}
-K_WORK_DEFINE(IFL_CAN_tx_work, IFL_CAN_tx_work_handler);
-
-/* --- CAN STUFF END --- */
-
-
-/* --- BLE STFF START --- */
-
-static void connected(struct bt_conn *conn, uint8_t err)	// here we set the connected bit for the sensor that connected (self-explanatory)
+// here we set the connected bit for the sensor that connected (self-explanatory)
+static void connected(struct bt_conn *conn, uint8_t err)
 {
 	char addr_str[BT_ADDR_LE_STR_LEN];
 
@@ -268,16 +309,43 @@ static void connected(struct bt_conn *conn, uint8_t err)	// here we set the conn
 		}
 
 	}
-	
-	err = bt_conn_le_create_auto(&scan_param, &conn_param);
-	if (err) {
-		LOG_ERR("Failed to start automatically connecting (err %d)", err);
+
+
+	// NOTE: there's gotta be a way to have the BT thread prioritize notifications over scanning. below is kinda dumb
+
+	// if all the sensors we care about are connected, use slow scanning so that BT thread is used mainly for TTPMS throughput
+	// if we still want to find more sensors, use fast scanning
+	if (atomic_test_bit(flags, IFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFL_CONNECTED_FLAG)) {
+
+		scan_param.interval = BT_GAP_SCAN_SLOW_INTERVAL_1;
+		scan_param.window = BT_GAP_SCAN_SLOW_WINDOW_1;
+		err = bt_conn_le_create_auto(&scan_param, &conn_param);
+		if (err) {
+			LOG_ERR("Failed to start automatically connecting (err %d)", err);
+		}
+
+	} else {
+
+		scan_param.interval = BT_GAP_SCAN_FAST_INTERVAL;
+		scan_param.window = BT_GAP_SCAN_FAST_WINDOW;
+		err = bt_conn_le_create_auto(&scan_param, &conn_param);
+		if (err) {
+			LOG_ERR("Failed to start automatically connecting (err %d)", err);
+		}
+
 	}
+
+	
 
 }
 
-static void disconnected(struct bt_conn *conn, uint8_t reason)	// here we clear the connected bit for the sensor that disconnected (self-explanatory), and we also clear the subscribe bit so that the logic in main will know to subscribe again if re-connected
+// Here we clear the connected bit for the sensor that disconnected (self-explanatory),
+// and we also clear the subscribe bit so that the logic in main will know we need to
+// subscribe again if re-connected (although there is also be a callback indicating the unsubscribe event upon disconnect).
+static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
+	int err;
+
 	char addr_str[BT_ADDR_LE_STR_LEN];
 
 	const bt_addr_le_t *addr = bt_conn_get_dst(conn);
@@ -336,6 +404,25 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)	// here we clear 
 		LOG_WRN("UNRECOGNIZED SENSOR DISCONNECTED, addr: %s (reason 0x%02x)", addr_str, reason);
 	}
 
+
+	// see note in connected(), it would be nice to remove the below if the BT thread can be made to prioritize notifications over scanning
+	// if we lost a sensor we want to have, stop slow scanning and start fast scanning
+	if (!(atomic_test_bit(flags, IFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFL_CONNECTED_FLAG))) {
+
+		err = bt_conn_create_auto_stop();
+		if (err) {
+			LOG_ERR("Failed to stop automatically connecting (err %d)", err);
+		}
+
+		scan_param.interval = BT_GAP_SCAN_FAST_INTERVAL;
+		scan_param.window = BT_GAP_SCAN_FAST_WINDOW;
+		err = bt_conn_le_create_auto(&scan_param, &conn_param);
+		if (err) {
+			LOG_ERR("Failed to start automatically connecting (err %d)", err);
+		}
+
+	}
+
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
@@ -379,36 +466,25 @@ uint8_t IFL_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params
 		return BT_GATT_ITER_CONTINUE;
 	}
 	
-	LOG_INF("IFL_temp_notify_cb: Notification received");
+	//LOG_INF("IFL_temp_notify_cb: Notification received");
 
 	// fill CAN frames with data
-	
-	IFL_temp_1.data[0] = ((uint8_t *)data)[0];
-	IFL_temp_1.data[1] = ((uint8_t *)data)[1];
-	IFL_temp_1.data[2] = ((uint8_t *)data)[2];
-	IFL_temp_1.data[3] = ((uint8_t *)data)[3];
-	IFL_temp_1.data[4] = ((uint8_t *)data)[4];
-	IFL_temp_1.data[5] = ((uint8_t *)data)[5];
-	IFL_temp_1.data[6] = ((uint8_t *)data)[6];
-	IFL_temp_1.data[7] = ((uint8_t *)data)[7];
-
-	IFL_temp_2.data[0] = ((uint8_t *)data)[8];
-	IFL_temp_2.data[1] = ((uint8_t *)data)[9];
-	IFL_temp_2.data[2] = ((uint8_t *)data)[10];
-	IFL_temp_2.data[3] = ((uint8_t *)data)[11];
-	IFL_temp_2.data[4] = ((uint8_t *)data)[12];
-	IFL_temp_2.data[5] = ((uint8_t *)data)[13];
-	IFL_temp_2.data[6] = ((uint8_t *)data)[14];
-	IFL_temp_2.data[7] = ((uint8_t *)data)[15];
+	for (int i = 0; i < 8; i++)
+	{
+		IFL_temp_1.data[i] = ((uint8_t *)data)[i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		IFL_temp_2.data[i] = ((uint8_t *)data)[8 + i];
+	}
 
 	// let the system workqueue actually send the frames (can_send is blocking)
-	k_work_submit(&IFL_CAN_tx_work);
+	k_work_submit(&IFL_temp_CAN_tx_work);
 
-	return BT_GATT_ITER_CONTINUE;
-
+	return BT_GATT_ITER_CONTINUE;	// stay subscribed
 }
 
-static struct bt_gatt_subscribe_params IFL_subscribe_params = {
+static struct bt_gatt_subscribe_params IFL_temp_subscribe_params = {
 		.value = BT_GATT_CCC_NOTIFY,
 		.notify = IFL_temp_notify_cb,
 		.subscribe = IFL_temp_subscribed_cb,
@@ -416,34 +492,82 @@ static struct bt_gatt_subscribe_params IFL_subscribe_params = {
 		.ccc_handle = TTPMS_GATT_TEMP_HANDLE + 1,	// see note in ttpms_common.h
 };
 
+
+void EFL_temp_subscribed_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_subscribe_params *params)
+{
+	if(params->value == BT_GATT_CCC_NOTIFY) {
+
+		atomic_set_bit(flags, EFL_SUBSCRIBED_FLAG);
+		LOG_INF("EFL_temp_subscribed_cb: subscribed");
+
+	} else if (params->value == 0) {
+
+		atomic_clear_bit(flags, EFL_SUBSCRIBED_FLAG);
+		LOG_INF("EFL_temp_subscribed_cb: unsubscribed");
+
+	} else {
+		LOG_WRN("EFL_temp_subscribed_cb: unknown CCC value");
+	}
+}
+
+uint8_t EFL_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params, const void *data, uint16_t length)
+{
+	
+	if (data == NULL){	// When successfully unsubscribed, (or if unpurposefully unsubscribed?), notify callback is called one last time with data set to NULL (from Zephyr docs)
+		LOG_INF("EFL_temp_notify_cb: unsubscribed");
+		atomic_clear_bit(flags, EFL_SUBSCRIBED_FLAG);
+		return BT_GATT_ITER_STOP;
+	}
+
+	if (!atomic_test_bit(flags, TEMP_ENABLED_FLAG)) {	// if temp is not enabled, we need to unsubscribe
+		LOG_INF("EFL_temp_notify_cb: attempting to unsubscribe");
+		return BT_GATT_ITER_STOP;	// returning this tells the BT Host to unsubscribe us
+	}
+
+	if (length != 32) {
+		LOG_ERR("EFL_temp_notify_cb: Invalid data received from notification");
+		return BT_GATT_ITER_CONTINUE;
+	}
+	
+	//LOG_INF("EFL_temp_notify_cb: Notification received");
+
+	// fill CAN frames with data
+	for (int i = 0; i < 8; i++)
+	{
+		EFL_temp_1.data[i] = ((uint8_t *)data)[i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFL_temp_2.data[i] = ((uint8_t *)data)[8 + i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFL_temp_3.data[i] = ((uint8_t *)data)[16 + i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFL_temp_4.data[i] = ((uint8_t *)data)[24 + i];
+	}
+
+	// let the system workqueue actually send the frames (can_send is blocking)
+	k_work_submit(&EFL_temp_CAN_tx_work);
+
+	return BT_GATT_ITER_CONTINUE;	// stay subscribed
+}
+
+static struct bt_gatt_subscribe_params EFL_temp_subscribe_params = {
+		.value = BT_GATT_CCC_NOTIFY,
+		.notify = EFL_temp_notify_cb,
+		.subscribe = EFL_temp_subscribed_cb,
+		.value_handle = TTPMS_GATT_TEMP_HANDLE,
+		.ccc_handle = TTPMS_GATT_TEMP_HANDLE + 1,	// see note in ttpms_common.h
+};
+
 // NOTE: each sensor needs to have its own subscribe_params variable since it remains tied to each subscription (from Zephyr docs)
 
-/* --- BLE STUFF END --- */
-
-
-
-void main(void)
+void TTPMS_BLE_init(void)
 {
-	LOG_INF("Running ttpms_v2_receiver");
-
 	int err;
-	
-	if (!device_is_ready(can_dev)) {
-		LOG_WRN("CAN device not ready");
-		return;
-	}
-
-	err = can_start(can_dev);
-	if (err != 0) {
-		LOG_WRN("Error starting CAN controller (err %d)", err);
-		return;
-	}
-
-	err = can_add_rx_filter(can_dev, settings_frame_cb, NULL, &settings_frame_filter);
-	if (err < 0) {
-		LOG_ERR("Unable to add CAN RX filter (err %d)", err);
-	}
-
 
 	bt_addr_le_t addr;
 
@@ -454,7 +578,6 @@ void main(void)
 	}
 
 	// assign self BT address
-	int bt_identity;
 	bt_identity = bt_id_create(&addr, NULL);
 	if (bt_identity < 0) {
 		LOG_WRN("Creating new BT ID failed (err %d)", err);
@@ -518,11 +641,27 @@ void main(void)
 	err = bt_le_filter_accept_list_add(&ERR_bt_addr);
 	if (err) { LOG_WRN("Failed to add address to filter accept list (err %d)", err); }
 
-
+	scan_param.interval = BT_GAP_SCAN_FAST_INTERVAL;
+	scan_param.window = BT_GAP_SCAN_FAST_WINDOW;
 	err = bt_conn_le_create_auto(&scan_param, &conn_param);
 	if (err) {
 		LOG_ERR("Failed to start automatically connecting (err %d)", err);
 	}
+}
+
+/* --- BLE STUFF END --- */
+
+
+
+void main(void)
+{
+	LOG_INF("Running ttpms_v2_receiver");
+
+	TTPMS_CAN_init();
+
+	TTPMS_BLE_init();
+	
+	int err;
 
 	struct bt_conn *conn;
 
@@ -536,20 +675,28 @@ void main(void)
 			if (atomic_test_bit(flags, IFL_CONNECTED_FLAG) && !atomic_test_bit(flags, IFL_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
 			{
 				LOG_INF("main: Attempting to subscribe to IFL temp");
-
-				IFL_subscribe_params.value = BT_GATT_CCC_NOTIFY;	// this gets changed to 0 by the BT stack after an unsubscription event, need to set it back
-
+				IFL_temp_subscribe_params.value = BT_GATT_CCC_NOTIFY;	// this gets changed to 0 by the BT stack after an unsubscription event, need to set it back
 				atomic_set_bit(flags, IFL_SUBSCRIBED_FLAG);	// bt_gatt_subscribe is not blocking, so if we don't set this here, we may try to subscribe twice!
-
 				conn = bt_conn_lookup_addr_le(bt_identity, &IFL_bt_addr);
-
-				err = bt_gatt_subscribe(conn, &IFL_subscribe_params);
-
+				err = bt_gatt_subscribe(conn, &IFL_temp_subscribe_params);
 				if (err) {
 					LOG_WRN("main: Failed to subscribe to IFL temp (err %d)", err);
 					atomic_clear_bit(flags, IFL_SUBSCRIBED_FLAG);	// see note above. must clear if we actually didn't subscribe
 				}
+				bt_conn_unref(conn);
+			}
 
+			if (atomic_test_bit(flags, EFL_CONNECTED_FLAG) && !atomic_test_bit(flags, EFL_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
+			{
+				LOG_INF("main: Attempting to subscribe to EFL temp");
+				EFL_temp_subscribe_params.value = BT_GATT_CCC_NOTIFY;	// this gets changed to 0 by the BT stack after an unsubscription event, need to set it back
+				atomic_set_bit(flags, EFL_SUBSCRIBED_FLAG);	// bt_gatt_subscribe is not blocking, so if we don't set this here, we may try to subscribe twice!
+				conn = bt_conn_lookup_addr_le(bt_identity, &EFL_bt_addr);
+				err = bt_gatt_subscribe(conn, &EFL_temp_subscribe_params);
+				if (err) {
+					LOG_WRN("main: Failed to subscribe to EFL temp (err %d)", err);
+					atomic_clear_bit(flags, EFL_SUBSCRIBED_FLAG);	// see note above. must clear if we actually didn't subscribe
+				}
 				bt_conn_unref(conn);
 			}
 
@@ -561,8 +708,8 @@ void main(void)
 		counter++;
 		if (counter >= 5) {		// send out TTPMS status message to dash every 500ms
 			counter = 0;
-			TTPMS_status.data[0] = (atomic_test_bit(flags, TEMP_ENABLED_FLAG) && (atomic_test_bit(flags, PRESSURE_ENABLED_FLAG) << 1));
-			TTPMS_status.data[1] = (atomic_get(flags) && 0xFF);
+			TTPMS_status.data[0] = (atomic_test_bit(flags, TEMP_ENABLED_FLAG) | (atomic_test_bit(flags, PRESSURE_ENABLED_FLAG) << 1));
+			TTPMS_status.data[1] = (atomic_get(flags) & 0xFF);
 			k_work_submit(&status_CAN_tx_work);
 		}
 		

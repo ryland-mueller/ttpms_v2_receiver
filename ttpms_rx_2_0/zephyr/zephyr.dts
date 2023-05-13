@@ -103,10 +103,20 @@
 			pinctrl-1 = < &spi0_sleep >;
 			pinctrl-names = "default", "sleep";
 			cs-gpios = < &gpio0 0xb 0x1 >, < &gpio0 0x11 0x1 >;
+			sdhc: sdhc@0 {
+				compatible = "zephyr,sdhc-spi-slot";
+				reg = < 0x0 >;
+				status = "okay";
+				spi-max-frequency = < 0x16e3600 >;
+				mmc {
+					compatible = "zephyr,sdmmc-disk";
+					status = "okay";
+				};
+			};
 			can: can@1 {
 				compatible = "microchip,mcp2515";
 				status = "okay";
-				spi-max-frequency = < 0xf4240 >;
+				spi-max-frequency = < 0x989680 >;
 				int-gpios = < &gpio0 0xf 0x1 >;
 				reg = < 0x1 >;
 				osc-freq = < 0x1312d00 >;
