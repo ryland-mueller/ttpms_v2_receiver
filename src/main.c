@@ -21,9 +21,6 @@
 LOG_MODULE_REGISTER(ttpms);
 
 
-// mount SD card to disk name we gave to the logging backend, so that it's only defined in one place (prj.conf)
-//#define DISK_MOUNT_PT CONFIG_LOG_BACKEND_FS_DIR
-
 
 // How we keep track of state.
 // Use Zephyr atomic set, clear, test functions.
@@ -305,7 +302,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 			LOG_INF("External RR connected, addr: %s", addr_str);
 			
 		} else {
-			LOG_WRN("UNRECOGNIZED SENSOR CONNECTED, addr: %s", addr_str);
+			LOG_INF("Unrecognized device connected, addr: %s", addr_str);
 		}
 
 	}
@@ -314,8 +311,8 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	// NOTE: there's gotta be a way to have the BT thread prioritize notifications over scanning. below is kinda dumb
 
 	// if all the sensors we care about are connected, use slow scanning so that BT thread is used mainly for TTPMS throughput
-	// if we still want to find more sensors, use fast scanning
-	if (atomic_test_bit(flags, IFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFL_CONNECTED_FLAG)) {
+	// if we still want to find more sensors, use fast scanning to get them connected quick
+	if (atomic_test_bit(flags, EFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFR_CONNECTED_FLAG)) {
 
 		scan_param.interval = BT_GAP_SCAN_SLOW_INTERVAL_1;
 		scan_param.window = BT_GAP_SCAN_SLOW_WINDOW_1;
@@ -401,13 +398,13 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		LOG_INF("External RR disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 		
 	} else {
-		LOG_WRN("UNRECOGNIZED SENSOR DISCONNECTED, addr: %s (reason 0x%02x)", addr_str, reason);
+		LOG_INF("Unknown device disconnected, addr: %s (reason 0x%02x)", addr_str, reason);
 	}
 
 
 	// see note in connected(), it would be nice to remove the below if the BT thread can be made to prioritize notifications over scanning
-	// if we lost a sensor we want to have, stop slow scanning and start fast scanning
-	if (!(atomic_test_bit(flags, IFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFL_CONNECTED_FLAG))) {
+	// if we lost a sensor we want to have, stop slow scanning and start fast scanning to get it connected again quickly
+	if (!(atomic_test_bit(flags, EFL_CONNECTED_FLAG) && atomic_test_bit(flags, EFR_CONNECTED_FLAG))) {
 
 		err = bt_conn_create_auto_stop();
 		if (err) {
@@ -563,6 +560,77 @@ static struct bt_gatt_subscribe_params EFL_temp_subscribe_params = {
 		.ccc_handle = TTPMS_GATT_TEMP_HANDLE + 1,	// see note in ttpms_common.h
 };
 
+
+void EFR_temp_subscribed_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_subscribe_params *params)
+{
+	if(params->value == BT_GATT_CCC_NOTIFY) {
+
+		atomic_set_bit(flags, EFR_SUBSCRIBED_FLAG);
+		LOG_INF("EFR_temp_subscribed_cb: subscribed");
+
+	} else if (params->value == 0) {
+
+		atomic_clear_bit(flags, EFR_SUBSCRIBED_FLAG);
+		LOG_INF("EFR_temp_subscribed_cb: unsubscribed");
+
+	} else {
+		LOG_WRN("EFR_temp_subscribed_cb: unknown CCC value");
+	}
+}
+
+uint8_t EFR_temp_notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params, const void *data, uint16_t length)
+{
+	
+	if (data == NULL){	// When successfully unsubscribed, (or if unpurposefully unsubscribed?), notify callback is called one last time with data set to NULL (from Zephyr docs)
+		LOG_INF("EFR_temp_notify_cb: unsubscribed");
+		atomic_clear_bit(flags, EFR_SUBSCRIBED_FLAG);
+		return BT_GATT_ITER_STOP;
+	}
+
+	if (!atomic_test_bit(flags, TEMP_ENABLED_FLAG)) {	// if temp is not enabled, we need to unsubscribe
+		LOG_INF("EFR_temp_notify_cb: attempting to unsubscribe");
+		return BT_GATT_ITER_STOP;	// returning this tells the BT Host to unsubscribe us
+	}
+
+	if (length != 32) {
+		LOG_ERR("EFR_temp_notify_cb: Invalid data received from notification");
+		return BT_GATT_ITER_CONTINUE;
+	}
+	
+	//LOG_INF("EFR_temp_notify_cb: Notification received");
+
+	// fill CAN frames with data
+	for (int i = 0; i < 8; i++)
+	{
+		EFR_temp_1.data[i] = ((uint8_t *)data)[i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFR_temp_2.data[i] = ((uint8_t *)data)[8 + i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFR_temp_3.data[i] = ((uint8_t *)data)[16 + i];
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		EFR_temp_4.data[i] = ((uint8_t *)data)[24 + i];
+	}
+
+	// let the system workqueue actually send the frames (can_send is blocking)
+	k_work_submit(&EFR_temp_CAN_tx_work);
+
+	return BT_GATT_ITER_CONTINUE;	// stay subscribed
+}
+
+static struct bt_gatt_subscribe_params EFR_temp_subscribe_params = {
+		.value = BT_GATT_CCC_NOTIFY,
+		.notify = EFR_temp_notify_cb,
+		.subscribe = EFR_temp_subscribed_cb,
+		.value_handle = TTPMS_GATT_TEMP_HANDLE,
+		.ccc_handle = TTPMS_GATT_TEMP_HANDLE + 1,	// see note in ttpms_common.h
+};
+
 // NOTE: each sensor needs to have its own subscribe_params variable since it remains tied to each subscription (from Zephyr docs)
 
 void TTPMS_BLE_init(void)
@@ -657,10 +725,13 @@ void main(void)
 {
 	LOG_INF("Running ttpms_v2_receiver");
 
+	k_sleep(K_MSEC(1));
+
 	TTPMS_CAN_init();
 
 	TTPMS_BLE_init();
-	
+
+	/*
 	int err;
 
 	struct bt_conn *conn;
@@ -700,6 +771,20 @@ void main(void)
 				bt_conn_unref(conn);
 			}
 
+			if (atomic_test_bit(flags, EFR_CONNECTED_FLAG) && !atomic_test_bit(flags, EFR_SUBSCRIBED_FLAG)) // if connected and not subscribed, we need to subscribe
+			{
+				LOG_INF("main: Attempting to subscribe to EFR temp");
+				EFR_temp_subscribe_params.value = BT_GATT_CCC_NOTIFY;	// this gets changed to 0 by the BT stack after an unsubscription event, need to set it back
+				atomic_set_bit(flags, EFR_SUBSCRIBED_FLAG);	// bt_gatt_subscribe is not blocking, so if we don't set this here, we may try to subscribe twice!
+				conn = bt_conn_lookup_addr_le(bt_identity, &EFR_bt_addr);
+				err = bt_gatt_subscribe(conn, &EFR_temp_subscribe_params);
+				if (err) {
+					LOG_WRN("main: Failed to subscribe to EFR temp (err %d)", err);
+					atomic_clear_bit(flags, EFR_SUBSCRIBED_FLAG);	// see note above. must clear if we actually didn't subscribe
+				}
+				bt_conn_unref(conn);
+			}
+
 		} 
 		// NOTE: the notify callbacks will unsubscribe themselves if they see that temp is not enabled
 	
@@ -713,6 +798,6 @@ void main(void)
 			k_work_submit(&status_CAN_tx_work);
 		}
 		
-	}
+	}*/
 	
 }
