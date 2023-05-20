@@ -34,10 +34,9 @@ __devicehdl_dts_ord_3[] = { DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, DEVICE_HANDLE_
  *    - /soc/gpio@50000000
  * Supported:
  *    - /soc/spi@40003000/can@1
- *    - /soc/spi@40003000/sdhc@0
  */
 const Z_DECL_ALIGN(device_handle_t) __attribute__((__section__(".__device_handles_pass2")))
-__devicehdl_dts_ord_74[] = { 3, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, 7, 8, DEVICE_HANDLE_ENDS };
+__devicehdl_dts_ord_74[] = { 3, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, 7, DEVICE_HANDLE_ENDS };
 
 /* 7 : /soc/spi@40003000/can@1:
  * Direct Dependencies:
@@ -46,19 +45,3 @@ __devicehdl_dts_ord_74[] = { 3, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, 7, 8, DEVI
  */
 const Z_DECL_ALIGN(device_handle_t) __attribute__((__section__(".__device_handles_pass2")))
 __devicehdl_dts_ord_75[] = { 3, 6, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, DEVICE_HANDLE_ENDS };
-
-/* 8 : /soc/spi@40003000/sdhc@0:
- * Direct Dependencies:
- *    - /soc/spi@40003000
- * Supported:
- *    - /soc/spi@40003000/sdhc@0/mmc
- */
-const Z_DECL_ALIGN(device_handle_t) __attribute__((__section__(".__device_handles_pass2")))
-__devicehdl_dts_ord_77[] = { 6, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, 9, DEVICE_HANDLE_ENDS };
-
-/* 9 : /soc/spi@40003000/sdhc@0/mmc:
- * Direct Dependencies:
- *    - /soc/spi@40003000/sdhc@0
- */
-const Z_DECL_ALIGN(device_handle_t) __attribute__((__section__(".__device_handles_pass2")))
-__devicehdl_dts_ord_78[] = { 8, DEVICE_HANDLE_SEP, DEVICE_HANDLE_SEP, DEVICE_HANDLE_ENDS };
