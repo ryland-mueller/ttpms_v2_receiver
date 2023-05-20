@@ -140,6 +140,9 @@ void settings_frame_cb(const struct device *dev, struct can_frame *frame, void *
 
 // The CAN frame structs are filled with data from BLE notification callback.
 // The filled frames are then sent here in system workqueue since can_send is blocking.
+// NOTE: This system should be changed, as the CAN frame data is not linked to each CAN send work event,
+// so if CAN messages become delayed more than ~120ms, the next BLE notification will overwrite the CAN frame data before the frame was sent with that data,
+// resulting in data loss and duplicate frames being sent.
 // The TTPMS_can_send function is just to avoid repeating the error logging code a million times.
 
 void TTPMS_CAN_send(const struct can_frame *frame)
@@ -878,7 +881,7 @@ void TTPMS_BLE_init(void)
 
 void main(void)
 {
-	LOG_INF("Running ttpms_v2_receiver");
+	LOG_INF("Running ttpms_v2_receiver in CAN bus mode");
 
 	k_sleep(K_MSEC(1));
 
@@ -886,6 +889,7 @@ void main(void)
 
 	TTPMS_BLE_init();
 
+	/*
 	int err;
 
 	struct bt_conn *conn;
